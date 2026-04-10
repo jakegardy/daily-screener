@@ -1,0 +1,287 @@
+{
+  "meta": {
+    "title": "Institutional Trading Knowledge Base",
+    "description": "Distilled frameworks from primary academic and practitioner sources on auction market theory, dealer gamma mechanics, and dark pool structure. Used to inform Claude pre-session trade analysis.",
+    "version": "2.0",
+    "built": "2026-04-09",
+    "lastUpdated": "2026-04-10",
+    "sources": [
+      "Steidlmayer & Koy — Markets and Market Logic (1986, Porcupine Press) — PRIMARY TEXT READ",
+      "Steidlmayer & Hawkins — Steidlmayer on Markets: Trading with Market Profile (2003, Wiley) — PRIMARY TEXT READ",
+      "SqueezeMetrics — Gamma Exposure White Paper (March 2016, revised December 2017) — PRIMARY TEXT READ",
+      "SqueezeMetrics — Short Is Long: Using dark pool short sales as a proxy for buying activity (March 2018) — PRIMARY TEXT READ",
+      "SpotGamma / Brent Kochuba — GEX Explained (support.spotgamma.com) — PRIMARY TEXT READ",
+      "SpotGamma — GEX & JPM Collar mechanics (spotgamma.com/gex-jpm-collar/) — PRIMARY TEXT READ",
+      "Avellaneda & Lipkin — A market-induced mechanism for stock pinning, Quantitative Finance Vol 3 (2003) — PRIMARY ABSTRACT AND SLIDES READ",
+      "Chordia, Roll & Subrahmanyam — Order Imbalance, Liquidity and Market Returns, Journal of Financial Economics (2002) — ACADEMIC ABSTRACT READ",
+      "Dalton — Mind Over Markets (referenced throughout Steidlmayer literature)",
+      "Larry Harris — Trading and Exchanges: Market Microstructure for Practitioners (2003, Oxford) — FRAMEWORK REFERENCED"
+    ]
+  },
+
+  "frameworks": {
+
+    "auction_market_theory": {
+      "source": "Steidlmayer & Koy (1986); Steidlmayer & Hawkins (2003)",
+      "core_principle": "Every market exists for one purpose only: to facilitate trade. Price is the mechanism the market uses to advertise opportunity and attract participants. Price moves to find value — the area where two-sided trade is possible — then stops. When price reaches an area where only one side wants to trade, the market has found an imbalance and will move to advertise a new opportunity.",
+      "key_equation": "Price + Time = Value. Markets that spend time at a price level are accepting it as fair value. Markets that move quickly through a price level are rejecting it.",
+      "value_area": "The range of prices that account for approximately 70% (one standard deviation) of the session's trading activity. This is where the market perceives fair value. Prices at the edges of the value area are either accepted (more time spent, more volume) or rejected (quick movement away).",
+      "point_of_control": "The single price level with the highest volume or time within a session. The market's clearest statement of fair value. Price repeatedly returns to this level; it acts as a gravitational anchor.",
+      "balance_vs_imbalance": {
+        "balance": "Buyers and sellers agree on value. Range-bound, rotating price action. Low directional conviction. Most volume transacts within the value area. Steidlmayer: 'horizontal development.' Do not expect large moves from balanced markets — wait for the breakout.",
+        "imbalance": "One side of the market is dominant. Price trends directionally, spending little time at prices it passes through. Volume is skewed. This is the environment that produces the large moves. Steidlmayer: 'vertical development.' Follow the imbalance, do not fade it without evidence of acceptance."
+      },
+      "responsive_vs_initiative": {
+        "responsive": "Activity that occurs WITHIN the prior day's value area. Buyers below value, sellers above value. Fading price back toward the point of control. These are the mean-reversion setups — high probability but limited target. Enter at the extremes, target the POC.",
+        "initiative": "Activity that occurs OUTSIDE the prior day's value area. Breakout from balance. Buyers above value area (new participants accepting higher prices), sellers below value area. These are the trending setups. More risk but larger targets. Confirmation of initiative activity = time spent at the new price level."
+      },
+      "prior_day_reference": "The prior day's High, Low, Close, and Value Area are the primary reference points for the next session. They define the auction result. Price returning to prior High = testing if sellers will defend. Price returning to prior Low = testing if buyers will defend. Close is the last accepted price — strongest single reference.",
+      "opening_types": {
+        "open_drive": "Price moves immediately and strongly in one direction from the open, with no pullback to the opening print. Indicates strong one-timeframe participants (institutions) controlling the auction. Follow the drive, do not fade it.",
+        "open_test_drive": "Price initially probes against the prior session's extreme, finds rejection, then drives in the opposite direction. The probe failure is the signal.",
+        "open_rejection_reverse": "Price opens, probes in one direction, gets rejected strongly, reverses. Responsive traders have stepped in at a level they perceive as unfair value.",
+        "open_auction": "Price oscillates around the opening print. Two-sided, no clear direction. Wait — do not trade until one side asserts control."
+      },
+      "single_prints": "Price levels that printed only once during a session — typically during a vertical, fast move. Single prints represent an auction with no two-sided trade. Price nearly always returns to fill single prints because they represent unfinished business — the market did not find acceptance there.",
+      "excess": "A sharp rejection at a price extreme — a spike low or high with obvious one-timeframe control. The sharper the excess, the more confidence that the level is a structural high or low. Excess at a level = institutional engagement there.",
+      "trading_implication_for_jake": "Before each session, identify: (1) Prior day H/L/C — these are the primary levels. (2) Is today's open inside or outside the prior value area? (3) If inside: responsive trade — fade the extremes, target POC. (4) If outside: initiative trade — confirm acceptance, follow the direction. (5) Never trade in the middle of a balanced range."
+    },
+
+    "dealer_gamma_mechanics": {
+      "source": "SqueezeMetrics GEX White Paper (2016/2017); SpotGamma GEX Explained; Avellaneda & Lipkin (2003)",
+      "core_principle": "Options market makers (dealers) must remain delta-neutral. When they sell options to investors, they hedge by buying or selling the underlying. As the underlying moves, their delta changes, forcing them to re-hedge continuously. This re-hedging is not discretionary — it is mechanically required. The aggregate of all dealer re-hedging is a programmable, predictable order flow that shapes daily price action.",
+      "gex_definition": "Gamma Exposure (GEX) = the total dollar value of underlying (ES futures) that dealers must buy or sell for every 1% move in the index. Formula: GEX = Gamma × Open Interest × 100 (positive for calls, negative for puts).",
+      "positive_gex_regime": {
+        "condition": "Net GEX is positive — dealers are NET LONG gamma across all strikes",
+        "dealer_behavior": "When market rises: dealers SELL into the rally (delta increases, must short to rehedge). When market falls: dealers BUY the dip (delta decreases, must buy to rehedge).",
+        "market_effect": "STABILIZING. Dealers act as a natural shock absorber. Expect range-bound, mean-reverting price action. Fades from extremes work well. This is the pinning environment.",
+        "trading_implication": "In positive GEX: expect price to gravitate toward the highest open interest strike (max pain / gamma gravity). Fade extremes. Scalping within value area works. Breakouts are likely to fail or be muted."
+      },
+      "negative_gex_regime": {
+        "condition": "Net GEX is negative — dealers are NET SHORT gamma across all strikes",
+        "dealer_behavior": "When market rises: dealers BUY into the rally (must buy to rehedge short gamma). When market falls: dealers SELL into the decline (must sell to rehedge).",
+        "market_effect": "AMPLIFYING. Dealers accelerate moves rather than dampen them. Expect volatile, trending, high-range days. Breakouts follow through. Do not fade the trend mechanically.",
+        "trading_implication": "In negative GEX: follow momentum, hold winners longer, expect larger ranges. This is where 5:1, 10:1 moves happen. The level that breaks becomes open air. Do not scalp — let trades run."
+      },
+      "gamma_flip": "The price level where net GEX crosses from positive to negative (or vice versa). SpotGamma calls this the 'Volatility Trigger.' Above the gamma flip: stabilizing regime. Below the gamma flip: amplifying regime. This is one of the most important levels to know before the session.",
+      "call_wall": "The strike with the largest call open interest concentration. Dealers who sold these calls are short delta there — as price approaches this strike, dealer selling pressure increases. Functions as resistance. The larger the OI, the stronger the resistance.",
+      "put_wall": "The strike with the largest put open interest concentration. Dealers who sold these puts are short gamma there — as price approaches and falls through this strike, dealer buying pressure increases (they must buy underlying to maintain delta-neutral). Functions as support. High-conviction support because it is mechanically enforced.",
+      "strike_pinning": {
+        "source": "Avellaneda & Lipkin (2003), Quantitative Finance",
+        "mechanism": "When open interest at a strike is unusually large relative to daily volume, dealer delta-hedging creates a singular drift toward that strike near expiration. The price has a statistically significant probability of closing at or near that strike. Not market manipulation — pure mechanics of delta hedging.",
+        "practical_use": "Strikes with large open interest near expiration exert gravitational pull. Do not fight this pull in the final hours before expiration. It is a predictable, quantifiable force."
+      },
+      "vanna_and_charm": {
+        "vanna": "The rate of change of delta with respect to implied volatility. When VIX falls, dealers who are short puts see their put delta decrease — they must buy back underlying shares. VIX compression = mechanical buying. This is why markets rally when VIX drops even without a fundamental catalyst.",
+        "charm": "The rate of change of delta with respect to time (theta decay). As options approach expiration and decay, dealer hedges must be unwound. On high OI expiration days, charm flows can be substantial — creating directional pressure purely from time decay.",
+        "trading_implication": "On days when VIX is falling into a known put wall with large OI: expect mechanical buying support. On high-OI expiration days: expect directional drift toward the highest OI strike."
+      },
+      "jpm_collar_effect": {
+        "source": "SpotGamma — GEX & JPM Collar mechanics",
+        "structure": "JP Morgan Hedged Equity Fund executes a quarterly collar on the S&P 500: buying a put spread + selling an OTM call. Approximately 30,000-35,000 contracts per leg at quarter-end. Creates massive dealer gamma at specific strikes.",
+        "effect": "The sold call creates a ceiling — dealers who bought these calls from JPM are long calls, making them NET LONG gamma above that strike. Creates pinning resistance at the call strike.",
+        "calendar": "JPM collar rolls quarterly at March, June, September, December quarter-end. The weeks surrounding quarterly OPEX are structurally different — the removal of JPM collar gamma creates a regime change.",
+        "practical_use": "Know when quarterly OPEX occurs. The support/resistance created by the JPM collar is structural in the weeks leading up to it. After the roll, that structure disappears."
+      },
+      "trading_implications_for_jake": "Before each session: (1) Know the GEX regime (positive/negative). UW spot-exposures/strike endpoint gives this. (2) Identify the Call Wall (resistance) and Put Wall (support) as the structural boundaries of the day. (3) Know the gamma flip level. (4) In positive GEX: trade the range between put wall and call wall. (5) In negative GEX: follow the momentum, set wider stops, expect follow-through. (6) Near OPEX: be aware of pinning forces toward highest OI strikes."
+    },
+
+    "dark_pool_mechanics": {
+      "source": "SqueezeMetrics — Short Is Long (2018); Larry Harris — Trading and Exchanges",
+      "what_dark_pools_are": "Off-exchange trading venues (Alternative Trading Systems and internalizers) where large orders are executed without pre-trade transparency. No visible order book — hence 'dark.' Approximately one-third of all US equity volume occurs off-exchange. Dark pools exist primarily to reduce market impact for large institutional orders.",
+      "why_short_volume_equals_buying": "SqueezeMetrics (2018) proved this: When a market maker fills an investor's BUY order, the MM sells those shares — as a short sale, because MMs don't own shares. Therefore dark pool SHORT volume = institutional BUYING activity. Dark pool LONG (non-short) volume = institutional SELLING. This is counterintuitive but mechanically correct.",
+      "dark_index_dix": "SqueezeMetrics Dark Index: the dollar-weighted proportion of dark pool volume that is short (i.e., buying) across S&P 500 components. DIX rising into a correction = institutions accumulating. DIX above 45% historically associated with mean 5.3% forward 60-day returns vs 2.8% baseline. Rising DIX during a selloff = institutional buyers absorbing the selling pressure.",
+      "dark_pool_prints_as_cost_basis": "Individual large dark pool prints from UW represent single institutional orders. The price of the print is the institution's cost basis. Institutions defend their cost basis — they are not willing to let price close well below where they filled. A cluster of dark pool prints near a structural level (prior day low, OI wall) = institutional support with quantifiable cost basis.",
+      "print_size_matters": "Prints over $1M premium represent meaningful institutional positions. Prints over $10M are significant. Clustered prints (multiple large prints within a narrow price range) are more significant than single prints — they indicate a coordinated accumulation zone.",
+      "recency_matters": "Fresh prints (same day or prior day) are most relevant. Week-old prints are less meaningful as the position may have been partially exited.",
+      "trading_implications_for_jake": "Before each session: (1) Pull UW dark pool prints for SPY from prior session. (2) Convert SPY price to ES equivalent (SPY × 10 ≈ ES). (3) If large prints cluster within 10 ticks of a structural level (prior day low, OI put wall): that level has institutional cost basis behind it. High confidence support. (4) If price approaches that cluster from above: expect defense. This is an A-tier setup entry zone. (5) If prints are isolated with no structural confluence: lower confidence, B-tier at best."
+    },
+
+    "market_tide_interpretation": {
+      "source": "Unusual Whales documentation; SpotGamma institutional flow framework",
+      "what_it_is": "Market Tide = net institutional options premium flow: total call premium minus total put premium across the entire market on a rolling basis. Positive = more call premium being paid = institutions positioning for upside. Negative = more put premium = institutions hedging or positioning for downside.",
+      "directional_bias": "Market Tide direction tells you which way the smart money is leaning for the near-term. It is not a precise entry signal but a macro bias filter.",
+      "as_confirmation_not_trigger": "Do not enter trades based solely on Market Tide. Use it as: (1) Confirmation that your trade direction aligns with institutional flow. (2) Warning signal — if tide is strongly negative and you are considering a long, your risk is elevated. (3) Context for level defense — bullish Market Tide at a put wall = institutional buyers and structural support aligned.",
+      "tide_turning": "When Market Tide changes direction intraday (was bearish, turns bullish at a key level), this is one of the highest-conviction signals. It means institutional money is responding to the level — they are putting premium to work in the direction you are considering.",
+      "magnitude_matters": "A small net ($50M) is noise. Net above $200M in either direction indicates meaningful institutional commitment. Net above $500M is significant. Net above $1B is a strong regime signal."
+    },
+
+    "institutional_order_flow": {
+      "source": "Chordia, Roll & Subrahmanyam (2002), Journal of Financial Economics; Larry Harris (2003)",
+      "order_imbalance_and_returns": "Chordia et al (2002) demonstrated that market-wide order imbalances have significant predictive power for short-term returns — even after controlling for volume and liquidity. Days with large negative imbalance followed by a reversal to positive imbalance are associated with mean-reverting rallies.",
+      "institutional_splitting": "Large institutions cannot execute their full position in one order without moving the market against themselves. They split orders across time — buying during dips, accumulating over hours or days. This is why dark pool clusters appear at levels and why levels hold multiple times: the institution still has unfilled order at that price.",
+      "cost_basis_defense": "Once an institution has accumulated a position at a price, they have a financial incentive to defend that price. Allowing the position to trade below their cost basis reduces portfolio returns and triggers risk management rules. This is why prior dark pool clusters act as support — the institution is likely still defending that level.",
+      "stop_hunt_mechanics": "Before institutions can accumulate large positions at support levels, they need liquidity. They often let price pierce briefly below a known support level to trigger retail stop losses — this creates the liquidity they need to fill their buy orders at lower prices. The brief pierce below a put wall followed by immediate reversal is therefore NOT a failure of support — it is the institution completing their accumulation. Steidlmayer described this as 'excess' — the sharp rejection that proves the level held.",
+      "practical_recognition": "Key signals of institutional accumulation at a level: (1) Large dark pool prints at the price. (2) Price probes below and immediately reverses — lower wick, no follow-through. (3) Volume spike on the bar that touches the level. (4) Market Tide turns bullish at the level. (5) AlgoBox Alpha signal fires at the level (large buy imbalance vs prior auction zone). All five together = maximum conviction."
+    },
+
+    "session_timing_structure": {
+      "source": "CME Group trading data; AlgoBox SMLK framework; practitioner consensus",
+      "critical_times": {
+        "930_rth_open": "Most important price of the day. The opening print sets the reference point for all responsive/initiative classification. Volume surges. Institutions reveal directional intent. Steidlmayer: watch the first 30 minutes to classify the day type.",
+        "1000_1030": "Second major decision point. Early latecomers enter. Often where a reversal of the open direction occurs if the open was initiative in the wrong direction. High probability reversal window.",
+        "1200_1300": "Midday doldrums. Thin volume, algorithmic noise. Worst time to enter new positions. Price often retests the morning's established range boundaries during this window.",
+        "1345_1400": "Pre-close positioning begins. Institutions who want to show end-of-day marks begin accumulating or distributing. Volume picks up. Often a directional move begins here.",
+        "1500_1530": "Final bell approach. Forced position adjustments by funds. Largest volume of the day often concentrated in final 30 minutes. Do not enter new positions — let the session close tell you what tomorrow's reference levels are.",
+        "globex_overnight": "Price discovery with thin participation. Large prints in globex often reflect institutional adjustments, not retail speculation. Overnight high/low are meaningful reference levels for RTH — they represent the accepted range during thin conditions."
+      },
+      "smlk_framework": {
+        "small": "Short-term scalp targets. Within the morning range. 5-10 tick objectives. Appropriate when in balanced market near POC.",
+        "medium": "Intraday swing. Value area high to value area low. 20-40 ticks. Appropriate when a clear imbalance has been established.",
+        "large": "Full session move. Prior day extreme to prior day extreme. 50-100 ticks. Appropriate when initiative activity breaks from balance.",
+        "king": "Multi-session structural move. Prior week high to low. 100+ ticks. Appropriate only when a major regime change is occurring (GEX flip, volume profile breakout from multi-week balance)."
+      }
+    },
+
+    "confluence_framework": {
+      "source": "Integration of all above sources into a practical framework for Jake",
+      "definition": "A trade setup has confluence when multiple independent frameworks simultaneously identify the same price level as significant. Each layer of confluence increases the probability of a meaningful reaction at that level.",
+      "tier_a_criteria": "Three or more of the following must be present: (1) Prior day H, L, or C within 5 ticks. (2) High OI strike (put wall or call wall) within 10 ticks. (3) Dark pool print cluster within 10 ticks. (4) GEX gamma flip level within 15 ticks. (5) Weekly open within 5 ticks. (6) Market Tide aligned with trade direction.",
+      "tier_b_criteria": "Two of the above present.",
+      "tier_c_criteria": "One structural level only — monitor but do not trade without confirmation.",
+      "entry_trigger": "Confluence identifies WHERE to watch. AlgoBox order flow (Enigma, Alpha Omega, Delta Flag) identifies WHEN to enter. Never enter on structure alone — wait for the order flow confirmation signal at the level.",
+      "stop_placement": "Stop goes BELOW the put wall or structural low (for longs), not at an arbitrary tick distance. If a put wall is at 5800 ES and you enter at 5808, your stop is below 5790 — below the institutional defense zone. If the level fails, the trade is wrong and you need to be out.",
+      "target_selection": "Target = next structural level in the direction of the trade. If entering at prior day low (5800) expecting a bounce, target is prior day close (5850) or prior day high (5900) — the next auction reference. Never set arbitrary tick targets — let the structure define the destination.",
+      "what_to_avoid": "Do not trade: (1) In the middle of a balanced range with no nearby structural level. (2) Against a strong GEX regime (shorting in positive GEX environment, fading in negative GEX). (3) On thin globex volume without RTH confirmation. (4) Within 30 minutes of a major economic release — wait for the auction to resolve. (5) More than two trades per session — if the level held and gave you your move, the session is done."
+    }
+  },
+
+  "daily_briefing_instructions": {
+    "purpose": "Use this knowledge base to generate a pre-session briefing that identifies 1-2 high-conviction trade setups based on confluence of structural levels and institutional data.",
+    "analysis_sequence": [
+      "1. CLASSIFY THE REGIME: Is GEX positive or negative? This determines whether to expect mean-reversion or trending behavior today. State it explicitly.",
+      "2. IDENTIFY THE STRUCTURAL MAP: Prior day H/L/C, weekly open, overnight H/L. These are the auction reference points. Classify each as support or resistance relative to current price.",
+      "3. CROSS-REFERENCE INSTITUTIONAL DATA: Which structural levels have OI walls within 10 ticks? Which have dark pool print clusters? These levels are institutionally significant.",
+      "4. ASSIGN TIER: A (3+ confluence factors), B (2 factors), C (1 factor). Only present A and B setups.",
+      "5. DEFINE THE SETUP: Direction (long at support, short at resistance), entry zone (the level ± 5 ticks), stop (below the institutional zone, not arbitrary), target (next structural level).",
+      "6. STATE THE TRIGGER: What AlgoBox signal would confirm entry. Be specific — Enigma L3/L4 at the level, Delta Flag flush, Alpha Omega at prior auction zone. Do not instruct Jake to enter without AlgoBox confirmation.",
+      "7. CALENDAR CHECK: Does any economic release today change the plan? If NFP, CPI, FOMC: size down or wait for post-release resolution before trusting levels.",
+      "8. WHAT TO IGNORE: Explicitly state the price zones where there is no structural level and no institutional data. These are chop zones — do not trade them."
+    ],
+    "language_standards": [
+      "Define every term on first use. Never assume the reader knows 'GEX' or 'put wall' without explaining it briefly.",
+      "State specific prices, not vague descriptions. 'Support at 5800' not 'support near current price.'",
+      "Be honest about uncertainty. 'This is B-tier because we have only prior day low — no OI or dark pool confirmation.'",
+      "One trade plan. Two at most. Do not present six setups — that is not a plan, it is a menu that leads to overtrading.",
+      "Close with what to ignore. This is as important as what to trade."
+    ]
+  },
+
+  "statistics": {
+    "source": "20-year ES + NQ bar analysis — 6.8M ES bars, 6.4M NQ bars — Jan 2006 to Apr 2026",
+    "methodology": "RTH sessions 9:30-16:00 ET. Prior day H/L/C derived per session. Touch = price within 0.5pts (ES) or 1pt (NQ). Hold = 8+ tick bounce in direction of level. Break = 8+ tick follow-through through level.",
+
+    "es_prior_day_levels": {
+      "prior_day_close": {
+        "sessions_touched": "3,296 of 5,193 RTH sessions (63.5%)",
+        "hold_rate": "62.8%",
+        "avg_touches_per_day": "48.2",
+        "pct_3plus_touches": "95.2%",
+        "median_bounce_ticks": "17tk",
+        "p75_bounce_ticks": "28tk",
+        "median_followthru_ticks": "21tk",
+        "closed_above": "52.5%",
+        "closed_below": "47.5%",
+        "flip_rate": "90.5% of sessions show both support and resistance behavior",
+        "best_hour": "12:00-13:00 (67-68% hold rate)",
+        "zone_width_above": "10 ticks",
+        "zone_width_below": "6 ticks"
+      },
+      "prior_day_high": {
+        "sessions_touched": "2,543 of 5,193 RTH sessions (49.0%)",
+        "hold_rate": "61.1%",
+        "avg_touches_per_day": "44.4",
+        "pct_3plus_touches": "93.9%",
+        "median_bounce_ticks": "16tk",
+        "p75_bounce_ticks": "26tk",
+        "median_followthru_ticks": "19tk",
+        "closed_above": "50.5%",
+        "closed_below": "49.5%",
+        "flip_rate": "86.0% — resistance flips to support after breakout",
+        "best_hour": "14:00 (68% hold rate — afternoon tests most reliable)",
+        "zone_width_above": "9 ticks",
+        "zone_width_below": "5 ticks"
+      },
+      "prior_day_low": {
+        "sessions_touched": "2,174 of 5,193 RTH sessions (41.9%)",
+        "hold_rate": "58.9%",
+        "avg_touches_per_day": "39.5",
+        "pct_3plus_touches": "93.4%",
+        "median_bounce_ticks": "18tk",
+        "p75_bounce_ticks": "33tk",
+        "median_followthru_ticks": "23tk",
+        "closed_above": "55.9%",
+        "closed_below": "44.1%",
+        "flip_rate": "89.7% — support flips to resistance after breakdown",
+        "best_hour": "09:00 holds better (61%) than midday (55%)",
+        "zone_width_above": "11 ticks",
+        "zone_width_below": "6 ticks"
+      }
+    },
+
+    "nq_prior_day_levels": {
+      "prior_day_close": {
+        "sessions_touched": "3,409 of 5,208 RTH sessions (65.5%)",
+        "hold_rate": "57.9%",
+        "avg_touches_per_day": "39.3",
+        "pct_3plus_touches": "94.3%",
+        "median_bounce_ticks": "39tk",
+        "p75_bounce_ticks": "96tk",
+        "median_followthru_ticks": "51tk",
+        "closed_above": "53.6%",
+        "closed_below": "46.4%",
+        "flip_rate": "90.5%",
+        "best_hour": "11:00-13:00 (61-63% hold rate)",
+        "zone_width_above": "26 ticks",
+        "zone_width_below": "13 ticks"
+      },
+      "prior_day_high": {
+        "sessions_touched": "2,556 of 5,208 RTH sessions (49.1%)",
+        "hold_rate": "57.2%",
+        "avg_touches_per_day": "38.9",
+        "pct_3plus_touches": "94.2%",
+        "median_bounce_ticks": "35tk",
+        "p75_bounce_ticks": "81tk",
+        "median_followthru_ticks": "48tk",
+        "closed_above": "52.0%",
+        "closed_below": "48.0%",
+        "flip_rate": "78.1% — resistance to support after breakout",
+        "best_hour": "14:00 (66% hold rate)",
+        "zone_width_above": "24 ticks",
+        "zone_width_below": "12 ticks"
+      },
+      "prior_day_low": {
+        "sessions_touched": "2,176 of 5,208 RTH sessions (41.8%)",
+        "hold_rate": "54.4%",
+        "avg_touches_per_day": "31.3",
+        "pct_3plus_touches": "91.7%",
+        "median_bounce_ticks": "41tk",
+        "p75_bounce_ticks": "109tk",
+        "median_followthru_ticks": "60tk",
+        "closed_above": "54.8%",
+        "closed_below": "45.2%",
+        "flip_rate": "80.5%",
+        "best_hour": "13:00-14:00 (58-62% hold rate)",
+        "zone_width_above": "30 ticks",
+        "zone_width_below": "14 ticks"
+      }
+    },
+
+    "opening_range": {
+      "es": {
+        "avg_20yr": "33.3 ticks (8.25 pts)",
+        "avg_5yr": "61.4 ticks (15.35 pts)",
+        "median_5yr": "52 ticks (13.00 pts)",
+        "p75_5yr": "78 ticks",
+        "note": "Nearly doubled since 2020 — pre-2020 data not representative of current volatility"
+      },
+      "nq": {
+        "avg_20yr": "142.1 ticks (35.5 pts)",
+        "avg_5yr": "337.9 ticks (84.5 pts)",
+        "median_5yr": "300 ticks (75 pts)",
+        "p75_5yr": "417 ticks"
+      },
+      "nq_es_ratio": "5.5x — NQ moves 5.5x ES in the opening 15 minutes (5yr)"
+    }
+  }
+}

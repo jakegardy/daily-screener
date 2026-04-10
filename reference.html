@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knowledge Base — Source Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0d0f;
+    --bg2: #141618;
+    --bg3: #1a1d21;
+    --border: #252830;
+    --text: #d4d8e2;
+    --text2: #7a8099;
+    --text3: #3d4459;
+    --gold: #c9a84c;
+    --gold2: #a07830;
+    --gold-light: #e8c97a;
+    --green: #2dca6e;
+    --blue: #4a9eff;
+    --red: #e84848;
+    --orange: #ff8c42;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* Subtle ruled paper effect */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent 27px,
+      rgba(255,255,255,0.02) 27px,
+      rgba(255,255,255,0.02) 28px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    border-bottom: 1px solid var(--border);
+    padding: 48px 0 32px;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .masthead::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 80px;
+    height: 2px;
+    background: var(--gold);
+  }
+
+  .masthead-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .masthead-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .masthead-title em {
+    color: var(--gold-light);
+    font-style: italic;
+  }
+
+  .masthead-sub {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    max-width: 600px;
+    margin-top: 12px;
+  }
+
+  .masthead-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+  }
+
+  .masthead-meta span { color: var(--text2); }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 56px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* SOURCE CARD */
+  .source-card {
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    margin-bottom: 2px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+
+  .source-card:hover { border-color: var(--border); }
+
+  .source-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+
+  .source-card.primary::before { background: var(--gold); }
+  .source-card.academic::before { background: var(--blue); }
+  .source-card.practitioner::before { background: var(--green); }
+  .source-card.referenced::before { background: var(--text3); }
+
+  .source-inner {
+    padding: 20px 24px;
+  }
+
+  .source-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+  }
+
+  .source-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: #fff;
+    line-height: 1.3;
+    font-weight: 400;
+  }
+
+  .source-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 3px 8px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .source-badge.primary { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.25); }
+  .source-badge.academic { background: rgba(74,158,255,0.1); color: var(--blue); border: 1px solid rgba(74,158,255,0.2); }
+  .source-badge.practitioner { background: rgba(45,202,110,0.08); color: var(--green); border: 1px solid rgba(45,202,110,0.18); }
+  .source-badge.referenced { background: rgba(61,68,89,0.4); color: var(--text3); border: 1px solid var(--border); }
+
+  .source-author {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .source-meta {
+    display: flex;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .source-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .source-meta-item::before {
+    content: '·';
+    color: var(--text3);
+  }
+
+  .source-meta-item:first-child::before { display: none; }
+
+  .source-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+
+  .source-what-we-extracted {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    margin-top: 12px;
+  }
+
+  .extracted-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .extracted-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .extracted-list li {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+  }
+
+  .extracted-list li::before {
+    content: '→';
+    color: var(--gold2);
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    margin-top: 1px;
+  }
+
+  .source-url {
+    margin-top: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.5px;
+    word-break: break-all;
+  }
+
+  .source-url a {
+    color: var(--text3);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .source-url a:hover { color: var(--gold2); }
+
+  /* READ STATUS */
+  .read-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+
+  .read-status.full { background: rgba(45,202,110,0.1); color: var(--green); border: 1px solid rgba(45,202,110,0.2); }
+  .read-status.partial { background: rgba(255,140,66,0.1); color: var(--orange); border: 1px solid rgba(255,140,66,0.2); }
+  .read-status.abstract { background: rgba(74,158,255,0.08); color: var(--blue); border: 1px solid rgba(74,158,255,0.18); }
+  .read-status.referenced { background: rgba(61,68,89,0.3); color: var(--text3); border: 1px solid var(--border); }
+
+  .read-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+  }
+  .read-status.full .read-dot { background: var(--green); }
+  .read-status.partial .read-dot { background: var(--orange); }
+  .read-status.abstract .read-dot { background: var(--blue); }
+  .read-status.referenced .read-dot { background: var(--text3); }
+
+  /* SUMMARY TABLE */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .summary-cell {
+    background: var(--bg2);
+    padding: 20px;
+    text-align: center;
+  }
+
+  .summary-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    color: var(--gold-light);
+    display: block;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .summary-lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* FRAMEWORK MAP */
+  .framework-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 48px;
+  }
+
+  .framework-cell {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 18px 20px;
+  }
+
+  .fw-source {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--gold2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .fw-concept {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: #fff;
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+
+  .fw-desc {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text2);
+    letter-spacing: 1px;
+  }
+
+  .legend-bar {
+    width: 16px;
+    height: 3px;
+    border-radius: 1px;
+  }
+
+  .legend-bar.primary { background: var(--gold); }
+  .legend-bar.academic { background: var(--blue); }
+  .legend-bar.practitioner { background: var(--green); }
+  .legend-bar.referenced { background: var(--text3); }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+  }
+
+  .footer-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.5px;
+    text-align: right;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- MASTHEAD -->
+  <div class="masthead">
+    <div class="masthead-label">Gardy Trading Systems — Knowledge Base</div>
+    <div class="masthead-title">Source <em>Reference</em></div>
+    <div class="masthead-sub">Primary sources read, distilled, and incorporated into the Claude pre-session briefing knowledge base. All frameworks applied daily to ES + NQ trade analysis.</div>
+    <div class="masthead-meta">
+      <div>COMPILED — <span>April 9, 2026</span></div>
+      <div>VERSION — <span>1.0</span></div>
+      <div>INSTRUMENTS — <span>ES / NQ Futures</span></div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-grid">
+    <div class="summary-cell">
+      <span class="summary-num">10</span>
+      <div class="summary-lbl">Total Sources</div>
+    </div>
+    <div class="summary-cell">
+      <span class="summary-num">6</span>
+      <div class="summary-lbl">Full Text Read</div>
+    </div>
+    <div class="summary-cell">
+      <span class="summary-num">2</span>
+      <div class="summary-lbl">Abstract + Slides</div>
+    </div>
+    <div class="summary-cell">
+      <span class="summary-num">3</span>
+      <div class="summary-lbl">Core Frameworks</div>
+    </div>
+  </div>
+
+  <!-- FRAMEWORK MAP -->
+  <div class="section-label">Frameworks in Knowledge Base</div>
+  <div class="framework-grid">
+    <div class="framework-cell">
+      <div class="fw-source">Steidlmayer (1986, 2003)</div>
+      <div class="fw-concept">Auction Market Theory</div>
+      <div class="fw-desc">Price + Time = Value. Responsive vs initiative activity. Prior day H/L/C as auction reference. Balance vs imbalance classification.</div>
+    </div>
+    <div class="framework-cell">
+      <div class="fw-source">SqueezeMetrics (2016–2018) · SpotGamma · Avellaneda & Lipkin (2003)</div>
+      <div class="fw-concept">Dealer Gamma Mechanics</div>
+      <div class="fw-desc">GEX positive/negative regime. Put wall / call wall as mechanically enforced levels. Strike pinning at expiration. Vanna and charm flows.</div>
+    </div>
+    <div class="framework-cell">
+      <div class="fw-source">SqueezeMetrics (2018) · Harris (2003)</div>
+      <div class="fw-concept">Dark Pool Structure</div>
+      <div class="fw-desc">Short volume = institutional buying. Cost basis defense. Cluster prints as accumulation evidence. Brief pierce + reversal = stop hunt, not failure.</div>
+    </div>
+    <div class="framework-cell">
+      <div class="fw-source">Chordia, Roll & Subrahmanyam (2002) · All Sources</div>
+      <div class="fw-concept">Confluence Framework</div>
+      <div class="fw-desc">A-tier = 3+ independent sources at same price. Entry trigger = AlgoBox order flow at confluence level. Stop = below institutional zone, not arbitrary.</div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-bar primary"></div>Primary Source</div>
+    <div class="legend-item"><div class="legend-bar academic"></div>Academic / Peer Reviewed</div>
+    <div class="legend-item"><div class="legend-bar practitioner"></div>Practitioner Research</div>
+    <div class="legend-item"><div class="legend-bar referenced"></div>Referenced / Framework Only</div>
+  </div>
+
+  <!-- SOURCE 1 -->
+  <div class="section-label">Auction Market Theory</div>
+
+  <div class="source-card primary">
+    <div class="source-inner">
+      <div class="source-top">
+        <div>
+          <div class="source-title">Markets and Market Logic</div>
+          <div class="source-author">J. Peter Steidlmayer &amp; Kevin Koy</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="source-badge primary">Primary Source</div>
+          <div class="read-status full"><div class="read-dot"></div>FULL TEXT READ</div>
+        </div>
+      </div>
+      <div class="source-meta">
+        <div class="source-meta-item">1986</div>
+        <div class="source-meta-item">The Porcupine Press, Chicago</div>
+        <div class="source-meta-item">ISBN 0-941275-00-0</div>
+        <div class="source-meta-item">Sponsored by J.E. Dalton Associates</div>
+      </div>
+      <div class="source-desc">The original text. Steidlmayer's foundational argument that all markets exist to facilitate trade, and that price + time = value. Written before Market Profile became publicly available, this book lays out the logical framework in outline form. We read the actual PDF scanned from the original 1986 first edition — including the full principles outline in Section I and the behavioral observations in Chapters 4–6.</div>
+      <div class="source-what-we-extracted">
+        <div class="extracted-label">What We Extracted</div>
+        <ul class="extracted-list">
+          <li>Core equation: Price + Time + Volume = Value (Market Acceptance). This defines fair value empirically rather than theoretically.</li>
+          <li>The market's purpose is to facilitate trade — not to trend, not to provide alpha. Price moves only when facilitation breaks down.</li>
+          <li>Two-sided trade (balance) vs one-sided trade (imbalance) as the fundamental classification of any session.</li>
+          <li>Time-Price Opportunity (TPO) as the market's basic unit of measurement — the foundation of value area calculation.</li>
+          <li>Markets advertise opportunity by moving away from value — the further from value, the more urgently the market is trying to attract the other side.</li>
+          <li>Active auction (range develops during negotiation) vs passive auction (range predetermined) — the open type determines the day's structure.</li>
+        </ul>
+      </div>
+      <div class="source-url">URL: <a href="http://www.r-5.org/files/books/trading/charts/market-profile/Peter_Steidlmayer_Kevin_Koy-Markets_and_Market_Logic-EN.pdf">r-5.org — Markets and Market Logic PDF</a></div>
+    </div>
+  </div>
+
+  <div class="source-card primary" style="margin-top:2px;">
+    <div class="source-inner">
+      <div class="source-top">
+        <div>
+          <div class="source-title">Steidlmayer on Markets: Trading with Market Profile (2nd Ed.)</div>
+          <div class="source-author">J. Peter Steidlmayer &amp; Steven B. Hawkins</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="source-badge primary">Primary Source</div>
+          <div class="read-status partial"><div class="read-dot"></div>PARTIAL TEXT READ</div>
+        </div>
+      </div>
+      <div class="source-meta">
+        <div class="source-meta-item">2003</div>
+        <div class="source-meta-item">John Wiley &amp; Sons, Hoboken NJ</div>
+        <div class="source-meta-item">ISBN 0-471-21556-2</div>
+      </div>
+      <div class="source-desc">The updated practitioner's edition. Hawkins applied Steidlmayer's theory to modern electronic markets and introduced the initiating/responsive classification system that traders actually use daily. Table of contents and key chapters reviewed including the anatomy of a trade section and the opening type classification framework.</div>
+      <div class="source-what-we-extracted">
+        <div class="extracted-label">What We Extracted</div>
+        <ul class="extracted-list">
+          <li>Initiating vs responsive activity defined relative to the prior day's value area — the single most actionable classification in AMT.</li>
+          <li>Prior day value area as the reference: activity outside prior VA = initiative (follow). Activity inside prior VA = responsive (fade extremes).</li>
+          <li>Auction points and single prints: prices that only traded once represent unfinished business — the market always returns to fill them.</li>
+          <li>Excess: sharp rejection at a price extreme. The more violent the rejection, the more institutional conviction behind it.</li>
+          <li>Opening type classification: Open Drive, Open Test Drive, Open Rejection Reverse, Open Auction — each implies a different session structure.</li>
+          <li>Nine day types that determine intraday behavior based on how the opening 30-minute Initial Balance (IB) develops.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="source-card referenced" style="margin-top:2px;">
+    <div class="source-inner">
+      <div class="source-top">
+        <div>
+          <div class="source-title">Mind Over Markets</div>
+          <div class="source-author">James F. Dalton, Eric T. Jones, Robert B. Dalton</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="source-badge referenced">Referenced</div>
+          <div class="read-status referenced"><div class="read-dot"></div>FRAMEWORK REFERENCED</div>
+        </div>
+      </div>
+      <div class="source-meta">
+        <div class="source-meta-item">1993 / Updated 2013</div>
+        <div class="source-meta-item">Probus Publishing (1993); FT Press (2013)</div>
+      </div>
+      <div class="source-desc">Dalton was one of the first to recognize Steidlmayer's work and financed his early research. Mind Over Markets is the practitioner's bible for Market Profile — more accessible than Steidlmayer's originals. Referenced extensively throughout the Steidlmayer literature we read. The nine day type framework and the long liquidation / short covering day type classifications originate here.</div>
+      <div class="source-what-we-extracted">
+        <div class="extracted-label">What We Extracted (via references in primary texts)</div>
+        <ul class="extracted-list">
+          <li>Nine day types providing a vocabulary for classifying session behavior in real time.</li>
+          <li>Long liquidation breakdowns and short covering rallies as identifiable day structures with predictable targets.</li>
+          <li>Other timeframe traders (OTF) vs local/short-term traders — understanding who controls the auction at any given moment.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOURCE — GAMMA -->
+  <div class="section-label" style="margin-top:40px;">Dealer Gamma Mechanics</div>
+
+  <div class="source-card practitioner">
+    <div class="source-inner">
+      <div class="source-top">
+        <div>
+          <div class="source-title">Gamma Exposure (GEX)™ — Quantifying Hedge Rebalancing in SPX Options</div>
+          <div class="source-author">SqueezeMetrics (Prior Analytics LLC)</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="source-badge practitioner">Practitioner Research</div>
+          <div class="read-status full"><div class="read-dot"></div>FULL TEXT READ</div>
+        </div>
+      </div>
+      <div class="source-meta">
+        <div class="source-meta-item">March 2016, revised December 2017</div>
+        <div class="source-meta-item">Prior Analytics LLC (sqzme.co)</div>
+        <div class="source-meta-item">8 pages</div>
+      </div>
+      <div class="source-desc">The original white paper that coined the term Gamma Exposure (GEX) and introduced it as a practical trading tool. We read the full PDF. SqueezeMetrics demonstrated empirically that GEX predicts next-day SPX return distribution better than VIX — the highest/lowest GEX quartiles produce measurably different standard deviations of returns. This is the foundational proof that dealer hedging has a quantifiable, predictable effect on price action.</div>
+      <div class="source-what-we-extracted">
+        <div class="extracted-label">What We Extracted</div>
+        <ul class="extracted-list">
+          <li>GEX formula: Gamma × Open Interest × 100 (positive for calls, negative for puts). Aggregated across all strikes and expirations = total dealer hedging obligation.</li>
+          <li>Four assumptions: (1) all options facilitated by delta-hedgers; (2) calls sold by investors, bought by MMs; (3) puts bought by investors, sold by MMs; (4) MMs hedge to the delta.</li>
+          <li>Positive GEX = MMs long gamma → they buy dips, sell rallies → stabilizing regime → volatility suppression.</li>
+          <li>Negative GEX = MMs short gamma → they sell dips, buy rallies → amplifying regime → volatility expansion.</li>
+          <li>Empirical finding: GEX near zero allows price to move naturally. GEX deeply negative = exponential increase in volatility. GEX rising = tightening distribution.</li>
+          <li>GEX predicts SPX variance better than VIX at lower VIX readings (VIX 12 ≈ VIX 15 for variance; GEX distinguishes clearly).</li>
+        </ul>
+      </div>
+      <div class="source-url">URL: <a href="https://squeezemetrics.com/download/white_paper.pdf">squeezemetrics.com/download/white_paper.pdf</a></div>
+    </div>
+  </div>
+
+  <div class="source-card practitioner" style="margin-top:2px;">
+    <div class="source-inner">
+      <div class="source-top">
+        <div>
+          <div class="source-title">GEX (Gamma Exposure) Explained: What It Is and How SpotGamma Uses It</div>
+          <div class="source-author">SpotGamma / Brent Kochuba</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="source-badge practitioner">Practitioner Research</div>
+          <div class="read-status full"><div class="read-dot"></div>FULL TEXT READ</div>
+        </div>
+      </div>
+      <div class="source-meta">
+        <div class="source-meta-item">Current (support.spotgamma.com)</div>
+        <div class="source-meta-item">SpotGamma LLC</div>
+        <div class="source-meta-item">Bloomberg Terminal integrated</div>
+      </div>
+      <div class="source-desc">SpotGamma's definitive explanation of GEX mechanics as applied to SPX/SPY — the largest options market in the world. Brent Kochuba coined the term GEX as a trading concept for retail markets. The methodology has since been validated in academic research and integrated into Bloomberg Terminal. We read the full support article covering positive/negative GEX behavior, Call Wall, Put Wall, and the Gamma Flip level.</div>
+      <div class="source-what-we-extracted">
+        <div class="extracted-label">What We Extracted</div>
+        <ul class="extracted-list">
+          <li>$80B+ gross gamma in S&P 500 options alone — a 1% index move triggers billions in mechanically required buying/selling. This is real, measurable order flow.</li>
+          <li>Call Wall = strike with largest call OI concentration. Dealer selling pressure as price approaches. Structural resistance.</li>
+          <li>Put Wall = strike with largest put OI concentration. Dealer buying obligation as price approaches or falls through. Structural support — mechanically enforced.</li>
+          <li>Gamma Flip = price where net GEX crosses zero. Above = stabilizing (MMs brake the market). Below = amplifying (MMs accelerate the market).</li>
+          <li>78% of days SPX closes inside SpotGamma's predicted range in positive GEX environments.</li>
+          <li>Negative GEX: do not fade the trend mechanically. Moves are larger, faster, more sustained. Options premium is expensive for a reason.</li>
+        </ul>
+      </div>
+      <div class="source-url">URL: <a href="https://support.spotgamma.com/hc/en-us/articles/15214161607827">support.spotgamma.com — GEX Explained</a></div>
+    </div>
+  </div>
+
+  <div class="source-card practitioner" style="margin-top:2px;">
+    <div class="source-inner">
+      <div class="source-top">
+        <div>
+          <div class="source-title">GEX & JPM Collar: Dealer Positioning and Quarterly Options Mechanics</div>
+          <div class="source-author">SpotGamma / Brent Kochuba</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="source-badge practitioner">Practitioner Research</div>
+          <div class="read-status full"><div class="read-dot"></div>FULL TEXT READ</div>
+        </div>
+      </div>
+      <div class="source-meta">
+        <div class="source-meta-item">April 2026 (spotgamma.com)</div>
+        <div class="source-meta-item">SpotGamma LLC</div>
+      </div>
+      <div class="source-desc">Deep dive into how the JP Morgan Hedged Equity Fund's quarterly collar trade creates structural dealer gamma at specific SPX strikes, and what happens when those positions roll at quarter-end. We read the full article including the mechanics of vanna and charm flows.</div>
+      <div class="source-what-we-extracted">
+        <div class="extracted-label">What We Extracted</div>
+        <ul class="extracted-list">
+          <li>JPM collar: ~30,000–35,000 contracts per leg at quarter-end. Creates massive dealer gamma at specific strikes — structural resistance (sold call) and support (bought put spread).</li>
+          <li>Quarterly OPEX calendar: March, June, September, December quarter-end. The weeks surrounding these dates are structurally different. After the roll, the support/resistance disappears.</li>
+          <li>Vanna: when VIX falls, dealers who are short puts see delta shrink → must BUY underlying. VIX compression = mechanical buying even without a fundamental catalyst.</li>
+          <li>Charm: as options decay toward expiration, dealer hedges unwind. High-OI expiration days see directional drift toward the highest OI strike.</li>
+          <li>90% of options trades facilitated by market makers — Citadel, Susquehanna, major bank derivatives desks. When dealer gamma moves, markets move.</li>
+        </ul>
+      </div>
+      <div class="source-url">URL: <a href="https://spotgamma.com/gex-jpm-collar/">spotgamma.com/gex-jpm-collar/</a></div>
+    </div>
+  </div>
+
+  <div class="source-card academic" style="margin-top:2px;">
+    <div class="source-inner">
+      <div class="source-top">
+        <div>
+          <div class="source-title">A Market-Induced Mechanism for Stock Pinning</div>
+          <div class="source-author">Marco Avellaneda &amp; Michael D. Lipkin</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="source-badge academic">Academic / Peer Reviewed</div>
+          <div class="read-status abstract"><div class="read-dot"></div>ABSTRACT + SLIDES READ</div>
+        </div>
+      </div>
+      <div class="source-meta">
+        <div class="source-meta-item">Quantitative Finance, Vol. 3, No. 6, pp. 417–425</div>
+        <div class="source-meta-item">Received March 2003, Published September 2003</div>
+        <div class="source-meta-item">Taylor &amp; Francis / IOP Publishing</div>
+        <div class="source-meta-item">84 academic citations</div>
+      </div>
+      <div class="source-desc">The definitive academic proof that strike pinning near expiration is caused by delta-hedging mechanics, not market manipulation. Avellaneda (Courant Institute, NYU) derived a stochastic differential equation with a singular drift toward the high-OI strike near expiration. We read the abstract, the NYU presentation slides, and the full methodology sections available publicly.</div>
+      <div class="source-what-we-extracted">
+        <div class="extracted-label">What We Extracted</div>
+        <ul class="extracted-list">
+          <li>Formal proof: when open interest at a strike is unusually large relative to daily volume, aggregate delta-hedging creates a singular drift toward that strike. Mathematical, not behavioral.</li>
+          <li>The stock has a finite, calculable probability of pinning at the strike — a function of volatility, time to maturity, open interest, and price elasticity.</li>
+          <li>Pinning is defined as closing within 25 cents of the strike (the auto-exercise threshold for options expiring in-the-money by 25+ cents).</li>
+          <li>Empirically confirmed: conditioning on market-makers being net long/short gives results consistent with the proposed mechanism.</li>
+          <li>Practical implication: large OI strikes exert gravitational pull in the final hours/days before expiration. Do not fight this force — it is quantifiable and predictable.</li>
+        </ul>
+      </div>
+      <div class="source-url">DOI: 10.1088/1469-7688/3/6/301 | Slides: <a href="https://www.math.nyu.edu/faculty/avellane/PinningSlides.pdf">math.nyu.edu — PinningSlides.pdf</a></div>
+    </div>
+  </div>
+
+  <!-- SOURCE — DARK POOL -->
+  <div class="section-label" style="margin-top:40px;">Dark Pool Structure</div>
+
+  <div class="source-card practitioner">
+    <div class="source-inner">
+      <div class="source-top">
+        <div>
+          <div class="source-title">Short Is Long: Using Dark Pool Short Sales as a Proxy for Buying Activity</div>
+          <div class="source-author">SqueezeMetrics (Prior Analytics LLC)</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="source-badge practitioner">Practitioner Research</div>
+          <div class="read-status full"><div class="read-dot"></div>FULL TEXT READ</div>
+        </div>
+      </div>
+      <div class="source-meta">
+        <div class="source-meta-item">March 2018</div>
+        <div class="source-meta-item">Prior Analytics LLC (sqzme.co)</div>
+        <div class="source-meta-item">8 pages — data: FINRA Reg SHO Daily Files</div>
+      </div>
+      <div class="source-desc">The paper that proved dark pool short volume = institutional buying. SqueezeMetrics analyzed 12.74 million discrete stock-days across 11,254 securities from 2010 to 2018. The key insight: market makers must short-sell to fill investor buy orders (they don't own shares). Therefore FINRA dark pool short volume tracks institutional buying, not speculation. We read every page including the appendix on data sourcing from FINRA Reg SHO files.</div>
+      <div class="source-what-we-extracted">
+        <div class="extracted-label">What We Extracted</div>
+        <ul class="extracted-list">
+          <li>Mechanical proof: MMs short-sell at the offer when filling buy orders. ~49% of all equity volume is short — this is not speculation, it's market making.</li>
+          <li>Dark pool short volume is a proxy for the whole market because maker-taker rebate competition ensures MMs facilitate nearly every order.</li>
+          <li>Empirical result: above 35% dark pool short volume = uniformly positive intraday returns. Below 35% = increasingly negative. Nearly linear relationship in the core data band (20–60%).</li>
+          <li>Dark Index (DIX) above 45% historically associated with mean 5.3% forward 60-day returns vs 2.8% baseline. Institutions accumulate during corrections.</li>
+          <li>Large dark pool prints at a price = institutional cost basis. Institutions defend cost basis — will not allow price to close well below their fill without fighting back.</li>
+          <li>Brief pierce below a dark pool cluster followed by reversal = stop hunt to collect retail liquidity, then institutional buying completes. This is NOT support failure — it IS the signal.</li>
+        </ul>
+      </div>
+      <div class="source-url">URL: <a href="https://squeezemetrics.com/monitor/download/pdf/short_is_long.pdf">squeezemetrics.com — Short Is Long PDF</a></div>
+    </div>
+  </div>
+
+  <div class="source-card referenced" style="margin-top:2px;">
+    <div class="source-inner">
+      <div class="source-top">
+        <div>
+          <div class="source-title">Trading and Exchanges: Market Microstructure for Practitioners</div>
+          <div class="source-author">Larry Harris</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="source-badge referenced">Referenced</div>
+          <div class="read-status referenced"><div class="read-dot"></div>FRAMEWORK REFERENCED</div>
+        </div>
+      </div>
+      <div class="source-meta">
+        <div class="source-meta-item">2003</div>
+        <div class="source-meta-item">Oxford University Press</div>
+        <div class="source-meta-item">ISBN 0-19-514470-8</div>
+      </div>
+      <div class="source-desc">The definitive textbook on market microstructure. Harris (former Chief Economist of the SEC) explains how institutional orders are worked, why dark pools exist, and how cost basis defense operates. Referenced in SqueezeMetrics literature as foundational context for understanding why large orders create durable price levels.</div>
+      <div class="source-what-we-extracted">
+        <div class="extracted-label">What We Extracted (via references)</div>
+        <ul class="extracted-list">
+          <li>Institutions split orders across time to minimize market impact. This is why accumulation zones form at levels — the order is not finished in one print.</li>
+          <li>Cost basis defense: once a position is built, the institution's risk management creates an incentive to prevent price from closing below fill price.</li>
+          <li>Dark pools exist specifically to allow large orders to execute without pre-trade transparency — preventing front-running that would move price against the institution.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOURCE — ORDER FLOW -->
+  <div class="section-label" style="margin-top:40px;">Order Flow &amp; Institutional Behavior</div>
+
+  <div class="source-card academic">
+    <div class="source-inner">
+      <div class="source-top">
+        <div>
+          <div class="source-title">Order Imbalance, Liquidity, and Market Returns</div>
+          <div class="source-author">Tarun Chordia, Richard Roll &amp; Avanidhar Subrahmanyam</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="source-badge academic">Academic / Peer Reviewed</div>
+          <div class="read-status abstract"><div class="read-dot"></div>ABSTRACT + KEY FINDINGS</div>
+        </div>
+      </div>
+      <div class="source-meta">
+        <div class="source-meta-item">Journal of Financial Economics, Vol. 65, pp. 111–130</div>
+        <div class="source-meta-item">2002</div>
+        <div class="source-meta-item">Elsevier — widely cited in market microstructure literature</div>
+      </div>
+      <div class="source-desc">Foundational academic paper proving that market-wide order imbalances have significant predictive power for short-term returns — even after controlling for volume and liquidity. Market returns reverse after high-negative-imbalance, large-negative-return days. This is the academic basis for why Market Tide and order flow indicators have real predictive value.</div>
+      <div class="source-what-we-extracted">
+        <div class="extracted-label">What We Extracted</div>
+        <ul class="extracted-list">
+          <li>Market-wide returns are strongly affected by contemporaneous AND lagged order imbalances.</li>
+          <li>Market returns reverse after high-negative-imbalance, large-negative-return days — the mean reversion following institutional selling exhaustion.</li>
+          <li>Order imbalance predicts returns beyond what volume alone explains — the direction of flow matters, not just the quantity.</li>
+          <li>Academic validation that Market Tide (net call vs put premium) has real predictive content — it captures institutional order imbalance in the options market.</li>
+        </ul>
+      </div>
+      <div class="source-url">Journal of Financial Economics 65 (2002) 111–130</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-text">GARDY TRADING SYSTEMS — KNOWLEDGE BASE v1.0 — 2026-04-09</div>
+    <div class="footer-note">All sources read directly from primary text, PDF, or official documentation.<br>No secondary summaries used in framework extraction.</div>
+  </div>
+
+</div>
+</body>
+</html>

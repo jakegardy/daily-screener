@@ -1,0 +1,3484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GARDY | Trading Desk v3.0</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080a0f;
+    --bg2: #0d1017;
+    --bg3: #121620;
+    --border: #1e2433;
+    --border2: #252d40;
+    --text: #c8d0e0;
+    --text2: #6b7a99;
+    --text3: #3d4a66;
+    --accent: #e8c547;
+    --accent2: #d4a820;
+    --green: #2dca6e;
+    --green2: #1a7a42;
+    --red: #e84848;
+    --red2: #8a2020;
+    --blue: #4a9eff;
+    --blue2: #1a4a8a;
+    --orange: #ff8c42;
+    --A: #2dca6e;
+    --B: #e8c547;
+    --C: #6b7a99;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--accent);
+  }
+
+  .session-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text2);
+    letter-spacing: 1px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .market-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  .status-dot.closed { background: var(--red); animation: none; }
+  .status-dot.premarket { background: var(--accent); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    padding: 10px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab:hover { color: var(--text2); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* RUN BUTTON */
+  .run-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .btn-run {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 28px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+
+  .btn-run:hover { background: #fff; transform: translateY(-1px); }
+  .btn-run:disabled { background: var(--border2); color: var(--text3); cursor: not-allowed; transform: none; }
+
+  .btn-run svg { width: 16px; height: 16px; }
+
+  .run-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 1px;
+  }
+
+  /* PROGRESS */
+  .progress-bar {
+    display: none;
+    margin-bottom: 24px;
+  }
+  .progress-bar.active { display: block; }
+
+  .progress-track {
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 1px;
+  }
+
+  /* ERROR */
+  .error-bar {
+    display: none;
+    padding: 12px 16px;
+    background: rgba(232, 72, 72, 0.1);
+    border: 1px solid var(--red2);
+    border-left: 3px solid var(--red);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--red);
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+  }
+  .error-bar.active { display: block; }
+
+  /* PRICE ROW */
+  .price-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .price-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .price-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .price-card.es::before { background: var(--blue); }
+  .price-card.nq::before { background: var(--orange); }
+
+  .price-card-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 4px;
+    margin-bottom: 4px;
+  }
+
+  .price-card.es .price-card-label { color: var(--blue); }
+  .price-card.nq .price-card-label { color: var(--orange); }
+
+  .price-card-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+
+  .price-change {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .price-change.up { color: var(--green); }
+  .price-change.down { color: var(--red); }
+  .price-change.flat { color: var(--text2); }
+
+  .price-session {
+    display: flex;
+    gap: 20px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .price-level {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .price-level-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .price-level-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  /* MAIN GRID */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  /* LEVELS PANEL */
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--text2);
+  }
+
+  .panel-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    background: var(--border);
+    color: var(--text2);
+  }
+
+  /* LEVEL ROWS */
+  .levels-list {
+    padding: 8px 0;
+  }
+
+  .level-row {
+    display: grid;
+    grid-template-columns: 32px 80px 1fr 80px 60px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  .level-row:last-child { border-bottom: none; }
+  .level-row:hover { background: rgba(255,255,255,0.02); }
+
+  .level-tier {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    text-align: center;
+  }
+  .level-tier.A { color: var(--A); }
+  .level-tier.B { color: var(--B); }
+  .level-tier.C { color: var(--C); }
+
+  .level-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .level-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.4;
+  }
+
+  .level-desc strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .level-dist {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    text-align: right;
+  }
+
+  .level-instrument {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-align: right;
+  }
+  .level-instrument.es { color: var(--blue); }
+  .level-instrument.nq { color: var(--orange); }
+
+  /* TRADE SETUPS */
+  .setup-card {
+    margin: 0 16px 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    padding: 16px;
+    position: relative;
+  }
+
+  .setup-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .setup-card.A::before { background: var(--A); }
+  .setup-card.B::before { background: var(--B); }
+  .setup-card.C::before { background: var(--C); }
+
+  .setup-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .setup-tier {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+  }
+  .setup-tier.A { color: var(--A); }
+  .setup-tier.B { color: var(--B); }
+  .setup-tier.C { color: var(--C); }
+
+  .setup-title {
+    font-weight: 500;
+    font-size: 14px;
+    color: #fff;
+  }
+
+  .setup-instrument {
+    margin-left: auto;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+  .setup-instrument.es { color: var(--blue); }
+  .setup-instrument.nq { color: var(--orange); }
+
+  .setup-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .setup-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .setup-stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .setup-stat-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+  .setup-stat-val.entry { color: var(--accent); }
+  .setup-stat-val.stop { color: var(--red); }
+  .setup-stat-val.target { color: var(--green); }
+
+  .setup-note {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  .setup-trigger {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(232, 197, 71, 0.06);
+    border: 1px solid rgba(232, 197, 71, 0.15);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* MARKET TIDE */
+  .tide-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  .tide-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+
+  .tide-gauge {
+    position: relative;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .tide-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .tide-fill.bullish { background: linear-gradient(90deg, var(--green2), var(--green)); }
+  .tide-fill.bearish { background: linear-gradient(90deg, var(--red2), var(--red)); }
+  .tide-fill.neutral { background: linear-gradient(90deg, var(--border2), var(--text3)); }
+
+  .tide-reading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .tide-direction {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+  }
+  .tide-direction.bullish { color: var(--green); }
+  .tide-direction.bearish { color: var(--red); }
+  .tide-direction.neutral { color: var(--text2); }
+
+  .tide-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  /* CALENDAR */
+  .calendar-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  .calendar-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+
+  .cal-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .cal-item:last-child { border-bottom: none; }
+
+  .cal-impact {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .cal-impact.high { background: var(--red); }
+  .cal-impact.medium { background: var(--accent); }
+  .cal-impact.low { background: var(--text3); }
+
+  .cal-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    white-space: nowrap;
+    min-width: 45px;
+    padding-top: 1px;
+  }
+
+  .cal-name {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .cal-empty {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 1px;
+  }
+
+  /* DARK POOL */
+  .dp-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  .dp-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+
+  .dp-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+  }
+  .dp-item:last-child { border-bottom: none; }
+
+  .dp-price { color: var(--text); }
+  .dp-size { color: var(--accent); }
+  .dp-time { color: var(--text3); font-size: 10px; }
+
+  /* CLAUDE BRIEFING */
+  .briefing-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  .briefing-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .briefing-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+
+  .briefing-timestamp {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+  }
+
+  .briefing-content {
+    padding: 20px;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.75;
+    white-space: pre-wrap;
+    min-height: 80px;
+  }
+
+  .briefing-content.empty {
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+  }
+
+  .briefing-content .section-head {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-top: 16px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  /* RULE PANEL */
+  .rule-panel {
+    background: rgba(232, 197, 71, 0.04);
+    border: 1px solid rgba(232, 197, 71, 0.15);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .rule-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .rule-text {
+    font-size: 13px;
+    color: var(--accent2);
+    line-height: 1.5;
+  }
+
+  .rule-text strong { color: var(--accent); }
+
+  /* PLACEHOLDER STATE */
+  .placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: var(--text3);
+    text-align: center;
+    gap: 12px;
+  }
+
+  .placeholder-icon {
+    font-size: 32px;
+    opacity: 0.4;
+  }
+
+  .placeholder-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* SKELETON */
+  .skeleton {
+    background: linear-gradient(90deg, var(--border) 25%, var(--border2) 50%, var(--border) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 2px;
+    height: 14px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ============ SETTINGS TAB ============ */
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .settings-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+
+  .settings-section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--text2);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--text2);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--text3); }
+
+  .field-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-save {
+    padding: 10px 24px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 8px;
+  }
+  .btn-save:hover { background: #fff; }
+
+  .save-confirm {
+    display: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 1px;
+    margin-left: 12px;
+  }
+  .save-confirm.show { display: inline; }
+
+  .settings-info {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    margin-top: 20px;
+    grid-column: 1 / -1;
+  }
+
+  .info-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--text2);
+    margin-bottom: 10px;
+  }
+
+  .info-item {
+    display: flex;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    padding: 4px 0;
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+  }
+
+  .info-item::before { content: '—'; color: var(--text3); }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  /* ZONE MAP */
+  .zone-map-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  .zone-map-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .zone-map-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+
+  .zone-map-tabs {
+    display: flex;
+    gap: 2px;
+  }
+
+  .zone-tab {
+    padding: 6px 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .zone-tab:hover { color: var(--text2); border-color: var(--border2); }
+  .zone-tab.active { color: var(--accent); border-color: var(--accent); background: rgba(232,197,71,0.06); }
+
+  .zone-map-body { padding: 20px; }
+
+  .zone-chart-container { display: none; }
+  .zone-chart-container.active { display: flex; gap: 0; }
+
+  /* PRICE AXIS */
+  .zone-price-axis {
+    width: 72px;
+    flex-shrink: 0;
+    position: relative;
+    border-right: 2px solid var(--border2);
+    margin-right: 0;
+  }
+
+  .axis-tick {
+    position: absolute;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transform: translateY(-50%);
+  }
+
+  .axis-tick-line {
+    width: 8px;
+    height: 1px;
+    background: var(--border2);
+  }
+
+  .axis-tick-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    text-align: right;
+    width: 56px;
+  }
+
+  .axis-tick-label.highlight {
+    color: var(--text2);
+    font-weight: 500;
+  }
+
+  /* ZONE CHART */
+  .zone-chart {
+    flex: 1;
+    position: relative;
+    min-height: 500px;
+  }
+
+  /* ZONE BOX */
+  .zone-box {
+    position: absolute;
+    left: 8px;
+    right: 0;
+    border-radius: 1px;
+    border-left: 4px solid transparent;
+    overflow: hidden;
+    transition: opacity 0.1s;
+    cursor: default;
+  }
+
+  .zone-box:hover { opacity: 0.9; }
+
+  /* Zone colors by type */
+  .zone-box.close  { border-left-color: #e8c547; background: rgba(232,197,71,0.07); }
+  .zone-box.high   { border-left-color: #e84848; background: rgba(232,72,72,0.07); }
+  .zone-box.low    { border-left-color: #2dca6e; background: rgba(45,202,110,0.07); }
+  .zone-box.weekly { border-left-color: #a78bfa; background: rgba(167,139,250,0.07); }
+  .zone-box.oi     { border-left-color: #4a9eff; background: rgba(74,158,255,0.07); }
+  .zone-box.dp     { border-left-color: #ff8c42; background: rgba(255,140,66,0.07); }
+  .zone-box.other  { border-left-color: #6b7a99; background: rgba(107,122,153,0.05); }
+
+  /* A-tier gets stronger fill */
+  .zone-box.tier-A.close  { background: rgba(232,197,71,0.12); }
+  .zone-box.tier-A.high   { background: rgba(232,72,72,0.12); }
+  .zone-box.tier-A.low    { background: rgba(45,202,110,0.12); }
+  .zone-box.tier-A.weekly { background: rgba(167,139,250,0.12); }
+  .zone-box.tier-A.oi     { background: rgba(74,158,255,0.12); }
+  .zone-box.tier-A.dp     { background: rgba(255,140,66,0.12); }
+
+  /* ZONE CONTENT */
+  .zone-content {
+    padding: 6px 10px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    justify-content: center;
+  }
+
+  .zone-top-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .zone-price-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  .zone-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .zone-tier-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    margin-left: auto;
+  }
+  .zone-tier-badge.A { color: var(--A); }
+  .zone-tier-badge.B { color: var(--B); }
+  .zone-tier-badge.C { color: var(--C); }
+
+  .zone-badges-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+
+  .zone-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    padding: 1px 5px;
+    text-transform: uppercase;
+  }
+  .zone-badge.oi     { background: rgba(74,158,255,0.15); color: var(--blue); }
+  .zone-badge.dp     { background: rgba(255,140,66,0.12); color: var(--orange); }
+  .zone-badge.tide   { background: rgba(45,202,110,0.1);  color: var(--green); }
+  .zone-badge.tide-b { background: rgba(232,72,72,0.1);   color: var(--red); }
+  .zone-badge.struct { background: rgba(232,197,71,0.1);  color: var(--accent2); }
+  .zone-badge.pin    { background: rgba(167,139,250,0.12); color: #a78bfa; }
+
+  .zone-expect {
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  .zone-expect.loading {
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-style: normal;
+    letter-spacing: 0.5px;
+  }
+
+  .zone-data-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 2px;
+  }
+
+  .zone-data-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.5px;
+  }
+
+  .zone-data-item span {
+    color: var(--text2);
+  }
+
+  /* TICK GAP LABEL */
+  .zone-gap-label {
+    position: absolute;
+    left: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transform: translateY(-50%);
+  }
+
+  .zone-gap-line {
+    flex: 1;
+    height: 1px;
+    border-top: 1px dashed var(--border);
+  }
+
+  /* CONFIDENCE DOTS inside zone */
+  .zone-conf-dots {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+  }
+
+  .zone-conf-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 1px;
+    background: var(--border2);
+  }
+  .zone-conf-dot.on { background: var(--accent); }
+  .zone-conf-dot.on.high { background: var(--green); }
+
+  /* LEVEL CARD */
+  .lc {
+    position: relative;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .lc:hover { border-color: var(--border2); }
+
+  .lc-accent {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+  }
+  .lc-accent.close  { background: #e8c547; }
+  .lc-accent.high   { background: #e84848; }
+  .lc-accent.low    { background: #2dca6e; }
+  .lc-accent.weekly { background: #a78bfa; }
+  .lc-accent.oi     { background: #4a9eff; }
+  .lc-accent.dp     { background: #ff8c42; }
+  .lc-accent.other  { background: #6b7a99; }
+
+  .lc-inner { padding: 12px 14px 12px 18px; }
+
+  /* TICK GAP BETWEEN CARDS */
+  .lc-gap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 14px;
+    margin-bottom: 6px;
+  }
+  .lc-gap-line { flex: 1; height: 1px; background: var(--border); border-top: 1px dashed var(--border2); }
+  .lc-gap-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  /* CARD TOP ROW */
+  .lc-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+
+  .lc-price-block { display: flex; flex-direction: column; gap: 2px; }
+
+  .lc-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .lc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .lc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+  .lc-tier {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    line-height: 1;
+  }
+  .lc-tier.A { color: var(--A); }
+  .lc-tier.B { color: var(--B); }
+  .lc-tier.C { color: var(--C); }
+
+  .lc-dist {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.5px;
+  }
+
+  /* CONFLUENCE BADGES */
+  .lc-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .lc-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 1px;
+    text-transform: uppercase;
+  }
+  .lc-badge.oi     { background: rgba(74,158,255,0.12); color: var(--blue); border: 1px solid rgba(74,158,255,0.25); }
+  .lc-badge.dp     { background: rgba(255,140,66,0.1);  color: var(--orange); border: 1px solid rgba(255,140,66,0.2); }
+  .lc-badge.tide   { background: rgba(45,202,110,0.08); color: var(--green); border: 1px solid rgba(45,202,110,0.18); }
+  .lc-badge.tide-b { background: rgba(232,72,72,0.08);  color: var(--red); border: 1px solid rgba(232,72,72,0.18); }
+  .lc-badge.struct { background: rgba(232,197,71,0.08); color: var(--accent); border: 1px solid rgba(232,197,71,0.18); }
+  .lc-badge.pin    { background: rgba(167,139,250,0.1); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
+
+  /* DATA ROWS */
+  .lc-data {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .lc-data-cell { display: flex; flex-direction: column; gap: 2px; }
+  .lc-data-key {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .lc-data-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+  }
+  .lc-data-val.positive { color: var(--green); }
+  .lc-data-val.negative { color: var(--red); }
+  .lc-data-val.accent   { color: var(--accent); }
+  .lc-data-val.none     { color: var(--text3); }
+
+  /* EXPECT BOX */
+  .lc-expect {
+    background: rgba(255,255,255,0.02);
+    border-left: 2px solid var(--border2);
+    padding: 8px 10px;
+    margin-bottom: 8px;
+  }
+
+  .lc-expect-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .lc-expect-text {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .lc-expect.loading .lc-expect-text {
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  /* TRADE LINE */
+  .lc-trade {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 0 0;
+  }
+
+  .lc-direction {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    padding: 2px 8px;
+  }
+  .lc-direction.long  { background: rgba(45,202,110,0.12); color: var(--green); border: 1px solid rgba(45,202,110,0.2); }
+  .lc-direction.short { background: rgba(232,72,72,0.1);   color: var(--red);   border: 1px solid rgba(232,72,72,0.2); }
+
+  .lc-trade-cell { display: flex; flex-direction: column; gap: 1px; }
+  .lc-trade-key {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 1px;
+  }
+  .lc-trade-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+  }
+  .lc-trade-val.entry  { color: var(--accent); }
+  .lc-trade-val.stop   { color: var(--red); }
+  .lc-trade-val.target { color: var(--green); }
+
+  .lc-r {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--accent);
+    text-align: right;
+  }
+
+  /* Confluence score bar */
+  .lc-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .lc-score-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .lc-score-dots {
+    display: flex;
+    gap: 3px;
+  }
+  .lc-score-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 1px;
+    background: var(--border2);
+  }
+  .lc-score-dot.filled { background: var(--accent); }
+  .lc-score-dot.filled.high { background: var(--green); }
+
+  /* Zone type colors */
+  .zone-close    { background: #e8c547; }
+  .zone-high     { background: #e84848; }
+  .zone-low      { background: #2dca6e; }
+  .zone-weekly   { background: #a78bfa; }
+  .zone-oi       { background: #4a9eff; }
+  .zone-dp       { background: #ff8c42; }
+  .zone-other    { background: #6b7a99; }
+
+  /* TIDE CHECK PANEL */
+  .tide-check-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tide-check-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green2), var(--green), var(--accent), var(--red), var(--red2));
+    opacity: 0.6;
+  }
+
+  .tide-check-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tide-check-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--text2);
+  }
+
+  .tide-check-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .tide-check-live {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+  }
+
+  .btn-check-tide {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--accent);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-check-tide:hover { background: var(--border); border-color: var(--accent); }
+  .btn-check-tide:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .tide-check-body {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    min-height: 160px;
+  }
+
+  /* LEFT — live gauge */
+  .tide-gauge-col {
+    padding: 16px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tide-gauge-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .tide-gauge-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .tide-gauge-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease, background 0.3s;
+  }
+  .tide-gauge-fill.bullish { background: linear-gradient(90deg, var(--green2), var(--green)); }
+  .tide-gauge-fill.bearish { background: linear-gradient(90deg, var(--red2), var(--red)); }
+  .tide-gauge-fill.neutral { background: var(--text3); }
+
+  .tide-current-dir {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    line-height: 1;
+  }
+  .tide-current-dir.bullish { color: var(--green); }
+  .tide-current-dir.bearish { color: var(--red); }
+  .tide-current-dir.neutral { color: var(--text2); }
+
+  .tide-current-net {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .tide-current-delta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+  .tide-current-delta.up   { color: var(--green); }
+  .tide-current-delta.down { color: var(--red); }
+  .tide-current-delta.flat { color: var(--text3); }
+
+  .tide-timestamp {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    margin-top: auto;
+  }
+
+  /* RIGHT — log feed */
+  .tide-log-col {
+    display: flex;
+    flex-direction: column;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .tide-log-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 2px;
+    padding: 40px 20px;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  .tide-entry {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    animation: slideIn 0.3s ease;
+  }
+
+  .tide-entry:last-child { border-bottom: none; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .tide-entry-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .tide-entry-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .tide-entry-dir {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    padding: 1px 8px;
+  }
+  .tide-entry-dir.bullish { background: rgba(45,202,110,0.12); color: var(--green); }
+  .tide-entry-dir.bearish { background: rgba(232,72,72,0.1);   color: var(--red); }
+  .tide-entry-dir.neutral { background: var(--border);          color: var(--text2); }
+
+  .tide-entry-net {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .tide-entry-delta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    margin-left: auto;
+  }
+  .tide-entry-delta.up   { color: var(--green); }
+  .tide-entry-delta.down { color: var(--red); }
+  .tide-entry-delta.flat { color: var(--text3); }
+
+  .tide-entry-level {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--accent2);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .tide-entry-analysis {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+    border-left: 2px solid var(--border2);
+    padding-left: 10px;
+  }
+
+  .tide-entry-analysis.loading {
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">GARDY</div>
+      <div class="session-time" id="clockDisplay">— — : — —  ET</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:2px;padding-left:12px;border-left:1px solid var(--border);margin-left:4px;" id="versionBadge">v—</div>
+    </div>
+    <div class="header-right">
+      <div class="market-status">
+        <div class="status-dot" id="marketDot"></div>
+        <span id="marketStatusText">CHECKING...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('briefing')">DAILY BRIEFING</button>
+    <button class="tab" onclick="switchTab('references')">KNOWLEDGE BASE</button>
+    <button class="tab" onclick="switchTab('settings')">SETTINGS</button>
+  </div>
+
+  <!-- ======= BRIEFING TAB ======= -->
+  <div class="tab-content active" id="tab-briefing">
+
+    <!-- RUN BAR -->
+    <div class="run-bar">
+      <button class="btn-run" id="runBtn" onclick="runBriefing()">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.5 8.5l-5 3A.5.5 0 016 11V5a.5.5 0 01.5-.5l5 3a.5.5 0 010 .86z"/></svg>
+        RUN BRIEFING
+      </button>
+      <div class="run-note" id="lastRun">NOT YET RUN TODAY</div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">INITIALIZING...</div>
+    </div>
+
+    <!-- ERROR -->
+    <div class="error-bar" id="errorBar"></div>
+
+    <!-- RULE -->
+    <div class="rule-panel">
+      <div class="rule-icon">⚠</div>
+      <div class="rule-text">
+        <strong>ONE TRADE RULE:</strong> Identify 1-2 A-tier levels before the session. Mark them on your HTF chart. Do not enter until price reaches that level AND AlgoBox confirms. No microstructure scalps between levels.
+      </div>
+    </div>
+
+    <!-- PRICE ROW -->
+    <div class="price-row" id="priceRow">
+      <div class="price-card es">
+        <div class="price-card-label">ES</div>
+        <div class="price-card-price" id="esPrice">—</div>
+        <div class="price-change flat" id="esChange">— pts  — %</div>
+        <div class="price-session">
+          <div class="price-level">
+            <div class="price-level-label">PREV CLOSE</div>
+            <div class="price-level-val" id="esPrevClose">—</div>
+          </div>
+          <div class="price-level">
+            <div class="price-level-label">PREV HIGH</div>
+            <div class="price-level-val" id="esPrevHigh">—</div>
+          </div>
+          <div class="price-level">
+            <div class="price-level-label">PREV LOW</div>
+            <div class="price-level-val" id="esPrevLow">—</div>
+          </div>
+          <div class="price-level">
+            <div class="price-level-label">GLOB HIGH</div>
+            <div class="price-level-val" id="esGlobHigh">—</div>
+          </div>
+          <div class="price-level">
+            <div class="price-level-label">GLOB LOW</div>
+            <div class="price-level-val" id="esGlobLow">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="price-card nq">
+        <div class="price-card-label">NQ</div>
+        <div class="price-card-price" id="nqPrice">—</div>
+        <div class="price-change flat" id="nqChange">— pts  — %</div>
+        <div class="price-session">
+          <div class="price-level">
+            <div class="price-level-label">PREV CLOSE</div>
+            <div class="price-level-val" id="nqPrevClose">—</div>
+          </div>
+          <div class="price-level">
+            <div class="price-level-label">PREV HIGH</div>
+            <div class="price-level-val" id="nqPrevHigh">—</div>
+          </div>
+          <div class="price-level">
+            <div class="price-level-label">PREV LOW</div>
+            <div class="price-level-val" id="nqPrevLow">—</div>
+          </div>
+          <div class="price-level">
+            <div class="price-level-label">GLOB HIGH</div>
+            <div class="price-level-val" id="nqGlobHigh">—</div>
+          </div>
+          <div class="price-level">
+            <div class="price-level-label">GLOB LOW</div>
+            <div class="price-level-val" id="nqGlobLow">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLAUDE BRIEFING -->
+    <div class="briefing-panel">
+      <div class="briefing-header">
+        <div class="briefing-title">CLAUDE ANALYSIS</div>
+        <div class="briefing-timestamp" id="briefingTimestamp">—</div>
+      </div>
+      <div class="briefing-content empty" id="briefingContent">
+        RUN BRIEFING TO GENERATE ANALYSIS
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+
+      <!-- LEFT: LEVELS + SETUPS -->
+      <div>
+        <!-- KEY LEVELS -->
+        <div class="panel" style="margin-bottom:16px;">
+          <div class="panel-header">
+            <div class="panel-title">KEY LEVELS TODAY</div>
+            <div class="panel-badge" id="levelsCount">—</div>
+          </div>
+          <div class="levels-list" id="levelsList">
+            <div class="placeholder">
+              <div class="placeholder-icon">◈</div>
+              <div class="placeholder-text">Run briefing to identify levels</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRADE SETUPS -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">TRADE SETUPS</div>
+            <div class="panel-badge" id="setupsCount">—</div>
+          </div>
+          <div id="setupsList" style="padding:8px 0;">
+            <div class="placeholder">
+              <div class="placeholder-icon">◎</div>
+              <div class="placeholder-text">Setups appear after briefing</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: SIDEBAR -->
+      <div class="sidebar">
+
+        <!-- MARKET TIDE CHECK — primary live tool -->
+        <div class="tide-check-panel">
+          <div class="tide-check-header">
+            <div class="tide-check-title">MARKET TIDE</div>
+            <div class="tide-check-meta">
+              <div class="tide-check-live">
+                <div class="status-dot" id="tideLiveDot" style="width:5px;height:5px;"></div>
+                <span id="tideTimestamp">—</span>
+              </div>
+              <button class="btn-check-tide" id="checkTideBtn" onclick="checkTide()">
+                ◎ CHECK TIDE
+              </button>
+            </div>
+          </div>
+          <div class="tide-check-body">
+            <div class="tide-gauge-col">
+              <div class="tide-gauge-label">CURRENT READING</div>
+              <div class="tide-gauge-bar">
+                <div class="tide-gauge-fill neutral" id="tideFill" style="width:50%"></div>
+              </div>
+              <div class="tide-current-dir neutral" id="tideDirection">—</div>
+              <div class="tide-current-net" id="tideValue">—</div>
+              <div class="tide-current-delta flat" id="tideDelta">—</div>
+              <div class="tide-timestamp" id="tideTimestamp2">AUTO-UPDATES EVERY 60s</div>
+            </div>
+            <div class="tide-log-col" id="tideLog">
+              <div class="tide-log-empty">
+                HIT CHECK TIDE WHEN<br>APPROACHING A LEVEL<br><br>
+                <span style="font-size:9px;opacity:0.5;">CLAUDE READS THE FLOW<br>IN CONTEXT OF YOUR NEAREST LEVEL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ECONOMIC CALENDAR -->
+        <div class="calendar-panel">
+          <div class="calendar-title">TODAY'S CALENDAR</div>
+          <div id="calendarList">
+            <div class="cal-empty">NO MAJOR EVENTS</div>
+          </div>
+        </div>
+
+        <!-- DARK POOL -->
+        <div class="dp-panel">
+          <div class="dp-title">SPY DARK POOL</div>
+          <div id="dpList">
+            <div class="cal-empty" style="font-size:11px;color:var(--text3);">RUN BRIEFING</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ZONE CHART MAP -->
+    <div class="zone-map-panel" id="ladderPanel" style="display:none;">
+      <div class="zone-map-header">
+        <div class="zone-map-title">INSTITUTIONAL ZONE MAP</div>
+        <div class="zone-map-tabs">
+          <button class="zone-tab active" id="ztab-es" onclick="switchZoneTab('es')">ES · S&amp;P 500</button>
+          <button class="zone-tab" id="ztab-nq" onclick="switchZoneTab('nq')">NQ · NASDAQ</button>
+        </div>
+        <div class="ladder-status" id="ladderStatus">—</div>
+      </div>
+      <div class="zone-map-body">
+        <div class="zone-chart-container active" id="zone-es">
+          <div class="zone-price-axis" id="es-axis"></div>
+          <div class="zone-chart" id="es-chart"></div>
+        </div>
+        <div class="zone-chart-container" id="zone-nq">
+          <div class="zone-price-axis" id="nq-axis"></div>
+          <div class="zone-chart" id="nq-chart"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======= KNOWLEDGE BASE TAB ======= -->
+  <div class="tab-content" id="tab-references">
+    <div style="padding: 24px 0;">
+
+      <!-- FRAMEWORK SUMMARY from knowledge.json -->
+      <div class="briefing-panel" style="margin-bottom:24px;">
+        <div class="briefing-header">
+          <div class="briefing-title">KNOWLEDGE BASE — FRAMEWORKS</div>
+          <div class="briefing-timestamp" id="kbVersion">LOADING...</div>
+        </div>
+        <div id="kbContent" style="padding:20px;color:var(--text2);font-size:13px;line-height:1.8;">
+          Loading knowledge base...
+        </div>
+      </div>
+
+      <!-- REFERENCE DOCUMENTS (iframe of reference.html) -->
+      <div class="briefing-panel">
+        <div class="briefing-header">
+          <div class="briefing-title">SOURCE DOCUMENTS</div>
+          <div class="briefing-timestamp">PRIMARY SOURCES READ + DISTILLED</div>
+        </div>
+        <iframe
+          src="./reference.html"
+          id="refFrame"
+          style="width:100%;height:800px;border:none;background:var(--bg);"
+          title="Reference Documents">
+        </iframe>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======= SETTINGS TAB ======= -->
+  <div class="tab-content" id="tab-settings">
+    <div class="settings-grid">
+
+      <div class="settings-section">
+        <div class="settings-section-title">TRADOVATE — FUTURES QUOTES</div>
+        <div class="field">
+          <label>Username</label>
+          <input type="text" id="cfg-tv-user" placeholder="your tradovate username">
+          <div class="field-note">Your Tradovate login username</div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="cfg-tv-pass" placeholder="your tradovate password">
+          <div class="field-note">Stored locally — never transmitted except to Tradovate auth</div>
+        </div>
+        <div class="field">
+          <label>Client ID (CID)</label>
+          <input type="text" id="cfg-tv-cid" placeholder="e.g. 12345">
+          <div class="field-note">Found in Tradovate API settings under your account</div>
+        </div>
+        <div class="field">
+          <label>Client Secret</label>
+          <input type="password" id="cfg-tv-secret" placeholder="your client secret">
+          <div class="field-note">API secret from Tradovate developer settings</div>
+        </div>
+        <div class="field">
+          <label>Environment</label>
+          <select id="cfg-tv-live">
+            <option value="true">Live (live.tradovate.com)</option>
+            <option value="false">Demo (demo.tradovate.com)</option>
+          </select>
+          <div class="field-note">Use Demo for testing — prices are real, orders are simulated</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">MARKETDATA.APP — FALLBACK</div>
+        <div class="field">
+          <label>MarketData.app API Token</label>
+          <input type="password" id="cfg-md-token" placeholder="your token here">
+          <div class="field-note">Used as fallback if Tradovate not configured (SPY×10 / QQQ×40 proxy)</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">UNUSUAL WHALES</div>
+        <div class="field">
+          <label>UW Bearer Token</label>
+          <input type="password" id="cfg-uw-token" placeholder="your token here">
+          <div class="field-note">Market Tide, dark pool, OI walls, economic calendar</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">ANTHROPIC</div>
+        <div class="field">
+          <label>Anthropic API Key</label>
+          <input type="password" id="cfg-anthropic-key" placeholder="sk-ant-...">
+          <div class="field-note">Claude generates the briefing and trade plan</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">PREFERENCES</div>
+        <div class="field">
+          <label>Zone Touch Range — ES (ticks)</label>
+          <input type="number" id="cfg-stop-ticks" placeholder="2" value="2">
+          <div class="field-note">How close price must get to a level to count as a touch</div>
+        </div>
+      </div>
+
+      <div class="settings-info">
+        <div class="info-title">HOW KEYS ARE STORED</div>
+        <div class="info-item">All API keys are stored in your browser's localStorage only — never sent anywhere except directly to the respective API</div>
+        <div class="info-item">MarketData.app: direct REST calls to api.marketdata.app</div>
+        <div class="info-item">Unusual Whales: direct REST calls to api.unusualwhales.com</div>
+        <div class="info-item">Anthropic: direct REST calls to api.anthropic.com — note CORS must be enabled or use a proxy if needed</div>
+        <div class="info-item">No data is logged, stored, or transmitted anywhere else</div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px;">
+      <button class="btn-save" onclick="saveSettings()">SAVE SETTINGS</button>
+      <span class="save-confirm" id="saveConfirm">✓ SAVED</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// VERSION
+// ============================================================
+const APP_VERSION = '3.0';
+const APP_BUILD   = '2026-04-10';
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  es: null,
+  nq: null,
+  tide: null,
+  calendar: [],
+  darkpool: [],
+  oiWalls: [],
+  levels: [],
+  setups: [],
+  briefing: '',
+  lastRun: null
+};
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  loadSettingsToForm();
+  startClock();
+  updateMarketStatus();
+  setInterval(updateMarketStatus, 60000);
+  const saved = localStorage.getItem('lastRun');
+  if (saved) document.getElementById('lastRun').textContent = 'LAST RUN: ' + saved;
+
+  // Version badge
+  document.getElementById('versionBadge').textContent = `v${APP_VERSION} · ${APP_BUILD}`;
+
+  // Live Market Tide polling — every 60 seconds if UW token is set
+  setInterval(() => {
+    const uwToken = getCfg('cfg-uw-token');
+    if (!uwToken) return;
+    fetchMarketTide(uwToken);
+  }, 60000);
+});
+
+// ============================================================
+// CLOCK + MARKET STATUS
+// ============================================================
+function startClock() {
+  function tick() {
+    const now = new Date();
+    const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const h = String(et.getHours()).padStart(2,'0');
+    const m = String(et.getMinutes()).padStart(2,'0');
+    document.getElementById('clockDisplay').textContent = h + ':' + m + ' ET';
+  }
+  tick();
+  setInterval(tick, 30000);
+}
+
+function updateMarketStatus() {
+  const now = new Date();
+  const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const day = et.getDay();
+  const h = et.getHours();
+  const m = et.getMinutes();
+  const mins = h * 60 + m;
+
+  const dot = document.getElementById('marketDot');
+  const txt = document.getElementById('marketStatusText');
+
+  if (day === 0 || day === 6) {
+    // Weekend — futures open Sunday 6pm
+    if (day === 0 && mins >= 18 * 60) {
+      dot.className = 'status-dot'; txt.textContent = 'GLOBEX OPEN';
+    } else {
+      dot.className = 'status-dot closed'; txt.textContent = 'WEEKEND';
+    }
+  } else if (mins >= 9 * 60 + 30 && mins < 16 * 60) {
+    dot.className = 'status-dot'; txt.textContent = 'RTH OPEN';
+  } else if (mins >= 8 * 60 && mins < 9 * 60 + 30) {
+    dot.className = 'status-dot premarket'; txt.textContent = 'PRE-MARKET';
+  } else if (mins >= 16 * 60 && mins < 18 * 60) {
+    dot.className = 'status-dot closed'; txt.textContent = 'POST-MARKET';
+  } else {
+    dot.className = 'status-dot'; txt.textContent = 'GLOBEX';
+  }
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `switchTab('${name}')`) t.classList.add('active');
+  });
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'references') loadKnowledgeBase();
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+const SETTINGS_KEYS = [
+  'cfg-md-token','cfg-uw-token','cfg-anthropic-key','cfg-stop-ticks',
+  'cfg-tv-user','cfg-tv-pass','cfg-tv-cid','cfg-tv-secret','cfg-tv-live'
+];
+
+function loadSettingsToForm() {
+  SETTINGS_KEYS.forEach(k => {
+    const el = document.getElementById(k);
+    const val = localStorage.getItem(k);
+    if (val && el) el.value = val;
+  });
+}
+
+function saveSettings() {
+  SETTINGS_KEYS.forEach(k => {
+    const el = document.getElementById(k);
+    if (el) localStorage.setItem(k, el.value);
+  });
+  tradovateToken = null;
+  tradovateTokenExpiry = 0;
+  const c = document.getElementById('saveConfirm');
+  if (c) { c.classList.add('show'); setTimeout(() => c.classList.remove('show'), 2500); }
+}
+
+function getCfg(key) { return localStorage.getItem(key) || ''; }
+
+// ============================================================
+// PROGRESS HELPERS
+// ============================================================
+function setProgress(pct, label) {
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = label;
+}
+
+function showProgress(show) {
+  document.getElementById('progressBar').classList.toggle('active', show);
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorBar');
+  el.textContent = msg;
+  el.classList.toggle('active', !!msg);
+}
+
+// ============================================================
+// MAIN RUN
+// ============================================================
+async function runBriefing() {
+  const mdToken = getCfg('cfg-md-token');
+  const uwToken = getCfg('cfg-uw-token');
+  const anthropicKey = getCfg('cfg-anthropic-key');
+
+  if (!mdToken || !uwToken || !anthropicKey) {
+    showError('⚠ Missing API keys — go to Settings tab and save your tokens first');
+    switchTab('settings');
+    return;
+  }
+
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  showProgress(true);
+  showError('');
+
+  try {
+    // Step 1: Prices (Tradovate live or MarketData fallback)
+    setProgress(10, 'FETCHING ES + NQ FUTURES QUOTES...');
+    await fetchPrices();
+
+    // Step 2: Market Tide
+    setProgress(28, 'READING MARKET TIDE...');
+    await fetchMarketTide(uwToken);
+
+    // Step 3: Economic Calendar
+    setProgress(42, 'CHECKING ECONOMIC CALENDAR...');
+    await fetchCalendar(uwToken);
+
+    // Step 4: Dark Pool
+    setProgress(56, 'SCANNING DARK POOL PRINTS...');
+    await fetchDarkPool(uwToken);
+
+    // Step 5: OI Walls
+    setProgress(68, 'MAPPING OI WALLS...');
+    await fetchOIWalls(uwToken);
+
+    // Step 6: Build levels
+    setProgress(78, 'IDENTIFYING KEY LEVELS...');
+    buildLevels();
+    renderLevels();
+
+    // Step 7: Claude
+    setProgress(86, 'GENERATING CLAUDE BRIEFING...');
+    await fetchClaudeBriefing(anthropicKey);
+
+    setProgress(100, 'COMPLETE');
+    setTimeout(() => showProgress(false), 1000);
+
+    const now = new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
+    localStorage.setItem('lastRun', now + ' ET');
+    document.getElementById('lastRun').textContent = 'LAST RUN: ' + now + ' ET';
+
+  } catch(err) {
+    showProgress(false);
+    showError('ERROR: ' + err.message);
+    console.error(err);
+  }
+
+  btn.disabled = false;
+}
+
+// ============================================================
+// TRADOVATE AUTH + PRICE FETCH
+// ============================================================
+
+// Front month contract auto-detection
+// ES/NQ quarterly rollover: March(H), June(M), September(U), December(Z)
+// Roll happens ~8 days before expiration (third Friday of month)
+function getFrontMonth(today = new Date()) {
+  const year   = today.getFullYear();
+  const month  = today.getMonth() + 1; // 1-12
+  const day    = today.getDate();
+  const yr2    = String(year).slice(-1); // last digit
+
+  // Find the third Friday of the current quarter expiry month
+  function thirdFriday(y, m) {
+    const d = new Date(y, m - 1, 1);
+    let fridays = 0;
+    while (fridays < 3) {
+      if (d.getDay() === 5) fridays++;
+      if (fridays < 3) d.setDate(d.getDate() + 1);
+    }
+    return d;
+  }
+
+  // Quarter expiry months
+  const quarters = [
+    { month: 3,  code: 'H' },
+    { month: 6,  code: 'M' },
+    { month: 9,  code: 'U' },
+    { month: 12, code: 'Z' }
+  ];
+
+  // Find current and next quarter
+  for (let i = 0; i < quarters.length; i++) {
+    const q = quarters[i];
+    const rollDate = thirdFriday(year, q.month);
+    rollDate.setDate(rollDate.getDate() - 8); // roll 8 days early
+    if (today < rollDate || (today <= rollDate && month <= q.month)) {
+      return { code: q.code, year: yr2 };
+    }
+  }
+  // Roll to next year March
+  return { code: 'H', year: String(year + 1).slice(-1) };
+}
+
+let tradovateToken = null;
+let tradovateTokenExpiry = 0;
+
+async function getTradovateToken(user, pass, cid, secret, live) {
+  const now = Date.now();
+  if (tradovateToken && now < tradovateTokenExpiry) return tradovateToken;
+
+  const base = live ? 'https://live.tradovate.com/v1' : 'https://demo.tradovate.com/v1';
+  const r = await fetch(`${base}/auth/accesstokenrequest`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: user,
+      password: pass,
+      appId: 'GardyTradeDesk',
+      appVersion: '1.0',
+      cid: parseInt(cid),
+      sec: secret,
+      deviceId: 'gardy-screener'
+    })
+  });
+
+  if (!r.ok) throw new Error('Tradovate auth failed: ' + r.status);
+  const d = await r.json();
+  if (d['p-ticket']) throw new Error('Tradovate MFA required — use app to confirm');
+  if (!d.accessToken) throw new Error('Tradovate auth: no token returned');
+
+  tradovateToken = d.accessToken;
+  tradovateTokenExpiry = now + (d.expirationTime ? new Date(d.expirationTime).getTime() - now : 60 * 60 * 1000);
+  return tradovateToken;
+}
+
+async function fetchPrices() {
+  const user   = getCfg('cfg-tv-user');
+  const pass   = getCfg('cfg-tv-pass');
+  const cid    = getCfg('cfg-tv-cid')    || '0';
+  const secret = getCfg('cfg-tv-secret') || '';
+  const live   = getCfg('cfg-tv-live')   !== 'false'; // default live
+
+  // Fall back to MarketData proxy if Tradovate not configured
+  const mdToken = getCfg('cfg-md-token');
+  if (!user || !pass) {
+    if (mdToken) return fetchPricesMD(mdToken);
+    throw new Error('Configure Tradovate credentials or MarketData token in Settings');
+  }
+
+  const base = live ? 'https://live.tradovate.com/v1' : 'https://demo.tradovate.com/v1';
+  const token = await getTradovateToken(user, pass, cid, secret, live);
+  const fm = getFrontMonth();
+  const esSym = `ES${fm.code}${fm.year}`;  // e.g. ESM5
+  const nqSym = `NQ${fm.code}${fm.year}`;
+
+  async function getQuote(sym) {
+    const r = await fetch(`${base}/marketdata/quotes?symbol=${sym}`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!r.ok) throw new Error(`Tradovate quote ${sym}: ${r.status}`);
+    return r.json();
+  }
+
+  const [esD, nqD] = await Promise.all([getQuote(esSym), getQuote(nqSym)]);
+
+  function parseQuote(d, sym) {
+    const q = Array.isArray(d) ? d[0] : d;
+    if (!q) throw new Error(`No data for ${sym}`);
+    return {
+      price:     parseFloat(q.trade?.price   || q.last     || q.close || 0),
+      prevClose: parseFloat(q.prevClose       || q.settlement || 0),
+      prevHigh:  parseFloat(q.highLimit       || q.high52w  || 0),
+      prevLow:   parseFloat(q.lowLimit        || q.low52w   || 0),
+      // Tradovate doesn't provide prev day H/L directly in quote
+      // Use bid/ask spread to infer session high/low as fallback
+      high:      parseFloat(q.openingPrice    || q.trade?.price || 0),
+      low:       parseFloat(q.openingPrice    || q.trade?.price || 0),
+      open:      parseFloat(q.openingPrice    || 0),
+      symbol:    sym
+    };
+  }
+
+  const es = parseQuote(esD, esSym);
+  const nq = parseQuote(nqD, nqSym);
+
+  // Tradovate quote endpoint gives current price and prev close
+  // For prev day H/L we need candle data — fetch last 2 daily candles
+  async function getDailyCandles(sym) {
+    const to   = new Date().toISOString();
+    const from = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
+    const r = await fetch(
+      `${base}/marketdata/getchart?symbol=${sym}&chartDescription={"underlyingType":"Future","elementSize":1,"elementSizeUnit":"Day","withHistogram":false}&timeRange={"asMuchAsElements":5}`,
+      { headers: { 'Authorization': 'Bearer ' + token } }
+    );
+    if (!r.ok) return null;
+    return r.json();
+  }
+
+  const [esCan, nqCan] = await Promise.all([
+    getDailyCandles(esSym),
+    getDailyCandles(nqSym)
+  ]);
+
+  function extractPrevDay(canData) {
+    if (!canData?.bars?.length) return null;
+    const bars = canData.bars;
+    // Last complete bar = second to last if today's bar exists
+    const bar = bars.length >= 2 ? bars[bars.length - 2] : bars[bars.length - 1];
+    return {
+      high:  bar.high,
+      low:   bar.low,
+      close: bar.close,
+      open:  bar.open
+    };
+  }
+
+  const esPrev = extractPrevDay(esCan);
+  const nqPrev = extractPrevDay(nqCan);
+
+  // Weekly open — Monday's open from candle data
+  function extractWeeklyOpen(canData) {
+    if (!canData?.bars?.length) return null;
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const daysToMon = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const bars = canData.bars;
+    const monBar = bars[Math.max(0, bars.length - 1 - daysToMon)];
+    return monBar?.open || bars[0]?.open;
+  }
+
+  state.es = {
+    price:     es.price,
+    prevClose: esPrev?.close  || es.prevClose || es.price,
+    prevHigh:  esPrev?.high   || es.price + 10,
+    prevLow:   esPrev?.low    || es.price - 10,
+    weeklyOpen:extractWeeklyOpen(esCan) || esPrev?.open || es.price,
+    globHigh:  Math.max(es.price, esPrev?.high || es.price),
+    globLow:   Math.min(es.price, esPrev?.low  || es.price),
+    change:    es.price - (esPrev?.close || es.prevClose || es.price),
+    symbol:    esSym
+  };
+
+  state.nq = {
+    price:     nq.price,
+    prevClose: nqPrev?.close  || nq.prevClose || nq.price,
+    prevHigh:  nqPrev?.high   || nq.price + 40,
+    prevLow:   nqPrev?.low    || nq.price - 40,
+    weeklyOpen:extractWeeklyOpen(nqCan) || nqPrev?.open || nq.price,
+    globHigh:  Math.max(nq.price, nqPrev?.high || nq.price),
+    globLow:   Math.min(nq.price, nqPrev?.low  || nq.price),
+    change:    nq.price - (nqPrev?.close || nq.prevClose || nq.price),
+    symbol:    nqSym
+  };
+
+  renderPrices();
+}
+
+// Fallback: MarketData.app ETF proxy (SPY×10, QQQ×40)
+async function fetchPricesMD(token) {
+  async function getQuote(sym) {
+    const r = await fetch(`https://api.marketdata.app/v1/stocks/quotes/${sym}/`, {
+      headers: { 'Authorization': 'Token ' + token }
+    });
+    if (!r.ok) throw new Error(`MarketData ${sym}: ${r.status}`);
+    return r.json();
+  }
+
+  async function getCandles(sym) {
+    const to   = new Date();
+    const from = new Date(to); from.setDate(from.getDate() - 10);
+    const r = await fetch(
+      `https://api.marketdata.app/v1/stocks/candles/D/${sym}/?from=${from.toISOString().split('T')[0]}&to=${to.toISOString().split('T')[0]}`,
+      { headers: { 'Authorization': 'Token ' + token } }
+    );
+    if (!r.ok) throw new Error(`MarketData candles ${sym}: ${r.status}`);
+    return r.json();
+  }
+
+  const [esQ, nqQ, esCan, nqCan] = await Promise.all([
+    getQuote('SPY'), getQuote('QQQ'),
+    getCandles('SPY'), getCandles('QQQ')
+  ]);
+
+  function prev(arr) { return arr[arr.length - 2]; }
+
+  const today = new Date();
+  const daysToMon = today.getDay() === 0 ? 6 : today.getDay() - 1;
+
+  state.es = {
+    price:     esQ.last[0] * 10,
+    prevClose: prev(esCan.c) * 10,
+    prevHigh:  prev(esCan.h) * 10,
+    prevLow:   prev(esCan.l) * 10,
+    weeklyOpen:esCan.c[Math.max(0, esCan.c.length - daysToMon - 1)] * 10,
+    globHigh:  Math.max(...esCan.h.slice(-3)) * 10,
+    globLow:   Math.min(...esCan.l.slice(-3)) * 10,
+    change:    (esQ.last[0] - prev(esCan.c)) * 10,
+    symbol:    'SPY×10 (proxy)'
+  };
+
+  state.nq = {
+    price:     nqQ.last[0] * 40,
+    prevClose: prev(nqCan.c) * 40,
+    prevHigh:  prev(nqCan.h) * 40,
+    prevLow:   prev(nqCan.l) * 40,
+    weeklyOpen:nqCan.c[Math.max(0, nqCan.c.length - daysToMon - 1)] * 40,
+    globHigh:  Math.max(...nqCan.h.slice(-3)) * 40,
+    globLow:   Math.min(...nqCan.l.slice(-3)) * 40,
+    change:    (nqQ.last[0] - prev(nqCan.c)) * 40,
+    symbol:    'QQQ×40 (proxy)'
+  };
+
+  renderPrices();
+}
+
+function renderPrices() {
+  const es = state.es, nq = state.nq;
+  if (!es || !nq) return;
+
+  function fmt(v) { return v.toFixed(2); }
+  function fmtChange(c, p) {
+    const pct = (c / p * 100).toFixed(2);
+    const sign = c >= 0 ? '+' : '';
+    return sign + c.toFixed(2) + ' pts  ' + sign + pct + '%';
+  }
+
+  document.getElementById('esPrice').textContent = fmt(es.price);
+  document.getElementById('esChange').textContent = fmtChange(es.change, es.prevClose);
+  document.getElementById('esChange').className = 'price-change ' + (es.change > 0 ? 'up' : es.change < 0 ? 'down' : 'flat');
+  document.getElementById('esPrevClose').textContent = fmt(es.prevClose);
+  document.getElementById('esPrevHigh').textContent = fmt(es.prevHigh);
+  document.getElementById('esPrevLow').textContent = fmt(es.prevLow);
+  document.getElementById('esGlobHigh').textContent = fmt(es.globHigh);
+  document.getElementById('esGlobLow').textContent = fmt(es.globLow);
+
+  document.getElementById('nqPrice').textContent = fmt(nq.price);
+  document.getElementById('nqChange').textContent = fmtChange(nq.change, nq.prevClose);
+  document.getElementById('nqChange').className = 'price-change ' + (nq.change > 0 ? 'up' : nq.change < 0 ? 'down' : 'flat');
+  document.getElementById('nqPrevClose').textContent = fmt(nq.prevClose);
+  document.getElementById('nqPrevHigh').textContent = fmt(nq.prevHigh);
+  document.getElementById('nqPrevLow').textContent = fmt(nq.prevLow);
+  document.getElementById('nqGlobHigh').textContent = fmt(nq.globHigh);
+  document.getElementById('nqGlobLow').textContent = fmt(nq.globLow);
+}
+
+// ============================================================
+// FETCH MARKET TIDE
+// ============================================================
+async function fetchMarketTide(token) {
+  try {
+    const r = await fetch('https://api.unusualwhales.com/api/market/market-tide', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!r.ok) throw new Error('Market Tide: ' + r.status);
+    const d = await r.json();
+    const data = d.data || d;
+    // Latest reading
+    const latest = Array.isArray(data) ? data[data.length - 1] : data;
+    const calls = parseFloat(latest?.call_premium || latest?.calls_premium || 0);
+    const puts = parseFloat(latest?.put_premium || latest?.puts_premium || 0);
+    const net = calls - puts;
+    const total = calls + puts || 1;
+    const pct = ((calls / total) * 100).toFixed(0);
+
+    state.tide = { calls, puts, net, pct: parseInt(pct),
+      direction: net > 0 ? 'bullish' : net < 0 ? 'bearish' : 'neutral' };
+    renderTide();
+  } catch(e) {
+    console.warn('Market Tide error:', e.message);
+    state.tide = { direction: 'neutral', pct: 50, calls: 0, puts: 0, net: 0 };
+    renderTide();
+  }
+}
+
+function renderTide() {
+  const t = state.tide;
+  if (!t) return;
+  const dir = t.direction;
+
+  document.getElementById('tideDirection').textContent = dir.toUpperCase();
+  document.getElementById('tideDirection').className = 'tide-current-dir ' + dir;
+  document.getElementById('tideFill').className = 'tide-gauge-fill ' + dir;
+  document.getElementById('tideFill').style.width = t.pct + '%';
+
+  const netM = (t.net / 1e6).toFixed(1);
+  document.getElementById('tideValue').textContent = (t.net >= 0 ? '+' : '') + netM + 'M net';
+
+  // Delta from previous reading
+  const prevNet = state.prevTideNet || 0;
+  const delta = t.net - prevNet;
+  const deltaM = (delta / 1e6).toFixed(1);
+  const deltaEl = document.getElementById('tideDelta');
+  if (Math.abs(delta) > 5e6) {
+    deltaEl.textContent = (delta >= 0 ? '▲ +' : '▼ ') + deltaM + 'M this interval';
+    deltaEl.className = 'tide-current-delta ' + (delta >= 0 ? 'up' : 'down');
+  } else {
+    deltaEl.textContent = '→ flat';
+    deltaEl.className = 'tide-current-delta flat';
+  }
+  state.prevTideNet = t.net;
+
+  const now = new Date().toLocaleTimeString('en-US', {
+    timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit'
+  });
+  document.getElementById('tideTimestamp').textContent = now + ' ET';
+  document.getElementById('tideTimestamp2').textContent = 'UPDATED ' + now + ' ET';
+
+  // Live dot color
+  const dot = document.getElementById('tideLiveDot');
+  if (dot) {
+    dot.style.background = dir === 'bullish' ? 'var(--green)' : dir === 'bearish' ? 'var(--red)' : 'var(--text3)';
+  }
+}
+
+// ============================================================
+// ECONOMIC CALENDAR
+// ============================================================
+async function fetchCalendar(token) {
+  try {
+    const r = await fetch('https://api.unusualwhales.com/api/market/economic-calendar', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!r.ok) throw new Error('Calendar: ' + r.status);
+    const d = await r.json();
+    const today = new Date().toISOString().split('T')[0];
+    const events = (d.data || d).filter(e => e.date?.startsWith(today));
+    state.calendar = events;
+    renderCalendar();
+  } catch(e) {
+    console.warn('Calendar error:', e.message);
+    state.calendar = [];
+    renderCalendar();
+  }
+}
+
+function renderCalendar() {
+  const el = document.getElementById('calendarList');
+  if (!state.calendar.length) {
+    el.innerHTML = '<div class="cal-empty">NO MAJOR EVENTS</div>';
+    return;
+  }
+  const high = state.calendar.filter(e =>
+    (e.importance || e.impact || '').toLowerCase().includes('high') ||
+    ['NFP','CPI','FOMC','GDP','PCE','PPI'].some(k => (e.title||e.event||'').toUpperCase().includes(k))
+  );
+  const show = high.length ? high : state.calendar.slice(0, 5);
+  el.innerHTML = show.map(e => {
+    const name = e.title || e.event || e.name || 'Event';
+    const time = e.time ? e.time.substring(0,5) : '';
+    const impact = (e.importance || e.impact || 'low').toLowerCase();
+    const impactClass = impact.includes('high') ? 'high' : impact.includes('med') ? 'medium' : 'low';
+    return `<div class="cal-item">
+      <div class="cal-impact ${impactClass}"></div>
+      <div class="cal-time">${time}</div>
+      <div class="cal-name">${name}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// DARK POOL
+// ============================================================
+async function fetchDarkPool(token) {
+  try {
+    const r = await fetch('https://api.unusualwhales.com/api/darkpool/SPY?limit=20&min_premium=1000000', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!r.ok) throw new Error('Dark pool: ' + r.status);
+    const d = await r.json();
+    const prints = (d.data || d).slice(0, 8);
+    state.darkpool = prints.map(p => ({
+      price: parseFloat(p.price) * 10, // SPY → ES proxy
+      size: parseInt(p.size),
+      premium: parseFloat(p.premium),
+      time: p.executed_at ? new Date(p.executed_at).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'}) : ''
+    }));
+    renderDarkPool();
+  } catch(e) {
+    console.warn('Dark pool error:', e.message);
+    state.darkpool = [];
+    renderDarkPool();
+  }
+}
+
+function renderDarkPool() {
+  const el = document.getElementById('dpList');
+  if (!state.darkpool.length) {
+    el.innerHTML = '<div class="cal-empty" style="color:var(--text3);font-size:11px;">NO LARGE PRINTS</div>';
+    return;
+  }
+  el.innerHTML = state.darkpool.map(p => {
+    const prem = (p.premium / 1e6).toFixed(1);
+    return `<div class="dp-item">
+      <span class="dp-price">${p.price.toFixed(2)}</span>
+      <span class="dp-size">$${prem}M</span>
+      <span class="dp-time">${p.time}</span>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// OI WALLS
+// ============================================================
+async function fetchOIWalls(token) {
+  try {
+    const r = await fetch('https://api.unusualwhales.com/api/stock/SPY/oi-per-strike', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!r.ok) throw new Error('OI walls: ' + r.status);
+    const d = await r.json();
+    const strikes = (d.data || d);
+    // Find top OI concentrations — put walls (support) and call walls (resistance)
+    const sorted = strikes
+      .map(s => ({
+        strike: parseFloat(s.strike || s.price || s.strike_price) * 10, // SPY → ES
+        putOI: parseInt(s.puts_oi || s.put_oi || 0),
+        callOI: parseInt(s.calls_oi || s.call_oi || 0),
+        totalOI: parseInt(s.total_oi || (parseInt(s.puts_oi||0) + parseInt(s.calls_oi||0)))
+      }))
+      .filter(s => s.strike > 0)
+      .sort((a,b) => b.totalOI - a.totalOI)
+      .slice(0, 10);
+
+    state.oiWalls = sorted;
+  } catch(e) {
+    console.warn('OI walls error:', e.message);
+    state.oiWalls = [];
+  }
+}
+
+// ============================================================
+// BUILD LEVELS
+// ============================================================
+function buildLevels() {
+  const es = state.es, nq = state.nq;
+  if (!es || !nq) return;
+
+  const rawLevels = [];
+
+  // ---- ES LEVELS ----
+  rawLevels.push({ instrument: 'es', price: es.prevClose,  label: 'Prior Day Close', type: 'close',  tier: 'A' });
+  rawLevels.push({ instrument: 'es', price: es.prevHigh,   label: 'Prior Day High',  type: 'high',   tier: 'A' });
+  rawLevels.push({ instrument: 'es', price: es.prevLow,    label: 'Prior Day Low',   type: 'low',    tier: 'A' });
+  rawLevels.push({ instrument: 'es', price: es.weeklyOpen, label: 'Weekly Open',     type: 'weekly', tier: 'B' });
+
+  // ---- NQ LEVELS ----
+  rawLevels.push({ instrument: 'nq', price: nq.prevClose,  label: 'Prior Day Close', type: 'close',  tier: 'A' });
+  rawLevels.push({ instrument: 'nq', price: nq.prevHigh,   label: 'Prior Day High',  type: 'high',   tier: 'A' });
+  rawLevels.push({ instrument: 'nq', price: nq.prevLow,    label: 'Prior Day Low',   type: 'low',    tier: 'A' });
+  rawLevels.push({ instrument: 'nq', price: nq.weeklyOpen, label: 'Weekly Open',     type: 'weekly', tier: 'B' });
+
+  // ---- OI WALLS ----
+  state.oiWalls.slice(0, 6).forEach(w => {
+    const nearES = Math.abs(w.strike - es.price) / es.price < 0.025;
+    const nearNQ = Math.abs(w.strike * 4 - nq.price) / nq.price < 0.025;
+    if (nearES) rawLevels.push({
+      instrument: 'es', price: w.strike,
+      label: `OI Wall ${(w.totalOI/1000).toFixed(0)}K contracts`,
+      type: 'oi', tier: w.totalOI > 50000 ? 'A' : 'B'
+    });
+    if (nearNQ) rawLevels.push({
+      instrument: 'nq', price: w.strike * 4,
+      label: `OI Wall ${(w.totalOI/1000).toFixed(0)}K contracts`,
+      type: 'oi', tier: w.totalOI > 50000 ? 'A' : 'B'
+    });
+  });
+
+  // ---- DARK POOL CLUSTERS ----
+  const clusters = [];
+  state.darkpool.forEach(p => {
+    const existing = clusters.find(c => Math.abs(c.price - p.price) < 5);
+    if (existing) { existing.count++; existing.totalPrem += p.premium; }
+    else clusters.push({ price: p.price, count: 1, totalPrem: p.premium });
+  });
+  clusters.filter(c => c.count >= 2 || c.totalPrem > 2e6).forEach(c => {
+    rawLevels.push({
+      instrument: 'es', price: c.price,
+      label: `Dark Pool $${(c.totalPrem/1e6).toFixed(1)}M (${c.count} prints)`,
+      type: 'dp', tier: c.count >= 3 ? 'A' : 'B'
+    });
+  });
+
+  // ---- TIER UPGRADES on confluence ----
+  rawLevels.forEach(l => {
+    const dpNearby = state.darkpool.some(dp => Math.abs(dp.price - l.price) < 10);
+    const oiNearby = state.oiWalls.some(w => Math.abs(w.strike - l.price) < 10);
+    if ((dpNearby || oiNearby) && l.tier === 'B') l.tier = 'A';
+    if (dpNearby && oiNearby) l.tier = 'A';
+  });
+
+  // ---- DISTANCE FROM CURRENT ----
+  rawLevels.forEach(l => {
+    const curPrice = l.instrument === 'es' ? es.price : nq.price;
+    l.distPts   = l.price - curPrice;
+    l.distTicks = Math.round(l.distPts / 0.25);
+    l.distStr   = (l.distPts >= 0 ? '+' : '') + l.distPts.toFixed(2) +
+                  ' (' + (l.distTicks >= 0 ? '+' : '') + l.distTicks + 'tk)';
+  });
+
+  // Sort closest first, then deduplicate within 3 pts
+  rawLevels.sort((a, b) => Math.abs(a.distPts) - Math.abs(b.distPts));
+  const deduped = [];
+  rawLevels.forEach(l => {
+    const dup = deduped.find(d => d.instrument === l.instrument && Math.abs(d.price - l.price) < 3);
+    if (!dup) deduped.push(l);
+    else if (l.tier === 'A' && dup.tier !== 'A') dup.tier = 'A';
+  });
+
+  state.levels = deduped.slice(0, 16);
+  state.setups = []; // no longer used
+}
+
+// ============================================================
+// RENDER LEVELS (summary list — zone chart is the main visual)
+// ============================================================
+function renderLevels() {
+  const el = document.getElementById('levelsList');
+  document.getElementById('levelsCount').textContent = state.levels.length + ' LEVELS';
+
+  if (!state.levels.length) {
+    el.innerHTML = '<div class="placeholder"><div class="placeholder-icon">◈</div><div class="placeholder-text">No levels found</div></div>';
+    return;
+  }
+
+  el.innerHTML = state.levels.map(l => `
+    <div class="level-row">
+      <div class="level-tier ${l.tier}">${l.tier}</div>
+      <div class="level-price">${l.price.toFixed(2)}</div>
+      <div class="level-desc">${l.label}</div>
+      <div class="level-dist">${l.distStr}</div>
+      <div class="level-instrument ${l.instrument}">${l.instrument.toUpperCase()}</div>
+    </div>
+  `).join('');
+
+  // Hide setups panel — replaced by zone chart
+  const sEl = document.getElementById('setupsList');
+  if (sEl) sEl.closest('.panel').style.display = 'none';
+
+  // Render zone chart
+  renderLadder();
+}
+
+// ============================================================
+// ============================================================
+// KNOWLEDGE BASE TAB
+// ============================================================
+async function loadKnowledgeBase() {
+  try {
+    const r = await fetch('./knowledge.json');
+    if (!r.ok) throw new Error('knowledge.json not found — place it in the same folder as index.html');
+    const kb = await r.json();
+
+    document.getElementById('kbVersion').textContent =
+      `v${kb.meta?.version || '1.0'} · ${kb.meta?.lastUpdated || '—'}`;
+
+    const f = kb.frameworks || {};
+    const s = kb.statistics || {};
+    let html = '';
+
+    // ES stats grid
+    if (s.es_prior_day_levels) {
+      html += `<div style="margin-bottom:28px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--blue);margin-bottom:12px;">ES — PRIOR DAY LEVEL STATISTICS (20YR)</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">`;
+      ['prior_day_close','prior_day_high','prior_day_low'].forEach(key => {
+        const d = s.es_prior_day_levels[key]; if (!d) return;
+        html += `<div style="background:var(--bg3);border:1px solid var(--border);padding:14px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:10px;">${key.replace(/_/g,' ').toUpperCase()}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;line-height:2.1;color:var(--text2);">
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">HOLD RATE</span><span style="color:var(--green);">${d.hold_rate||'—'}</span></div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">SESSIONS</span>${d.sessions_touched||'—'}</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">AVG TOUCHES</span>${d.avg_touches_per_day||'—'}/day</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">MED BOUNCE</span>${d.median_bounce_ticks||'—'}tk</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">MED FOLLOW</span>${d.median_followthru_ticks||'—'}tk</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">3+ TOUCHES</span>${d.pct_3plus_touches||'—'}</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">FLIP RATE</span>${d.flip_rate||'—'}</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">BEST HOUR</span>${d.best_hour||'—'}</div>
+          </div>
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // NQ stats grid
+    if (s.nq_prior_day_levels) {
+      html += `<div style="margin-bottom:28px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--orange);margin-bottom:12px;">NQ — PRIOR DAY LEVEL STATISTICS (20YR)</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">`;
+      ['prior_day_close','prior_day_high','prior_day_low'].forEach(key => {
+        const d = s.nq_prior_day_levels[key]; if (!d) return;
+        html += `<div style="background:var(--bg3);border:1px solid var(--border);padding:14px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:10px;">${key.replace(/_/g,' ').toUpperCase()}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;line-height:2.1;color:var(--text2);">
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">HOLD RATE</span><span style="color:var(--green);">${d.hold_rate||'—'}</span></div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">SESSIONS</span>${d.sessions_touched||'—'}</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">AVG TOUCHES</span>${d.avg_touches_per_day||'—'}/day</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">MED BOUNCE</span>${d.median_bounce_ticks||'—'}tk</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">MED FOLLOW</span>${d.median_followthru_ticks||'—'}tk</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">3+ TOUCHES</span>${d.pct_3plus_touches||'—'}</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">FLIP RATE</span>${d.flip_rate||'—'}</div>
+            <div><span style="color:var(--text3);display:inline-block;width:90px;">BEST HOUR</span>${d.best_hour||'—'}</div>
+          </div>
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // Opening range
+    if (s.opening_range) {
+      const or = s.opening_range;
+      html += `<div style="margin-bottom:28px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--text2);margin-bottom:12px;">15-MIN OPENING RANGE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:var(--bg3);border:1px solid var(--border);padding:14px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:8px;">ES</div>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;line-height:2.1;color:var(--text2);">
+              <div><span style="color:var(--text3);display:inline-block;width:90px;">20YR AVG</span>${or.es?.avg_20yr||'—'}</div>
+              <div><span style="color:var(--text3);display:inline-block;width:90px;">5YR AVG</span><span style="color:var(--accent);">${or.es?.avg_5yr||'—'}</span></div>
+              <div><span style="color:var(--text3);display:inline-block;width:90px;">5YR MEDIAN</span>${or.es?.median_5yr||'—'}</div>
+            </div>
+          </div>
+          <div style="background:var(--bg3);border:1px solid var(--border);padding:14px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:8px;">NQ</div>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;line-height:2.1;color:var(--text2);">
+              <div><span style="color:var(--text3);display:inline-block;width:90px;">20YR AVG</span>${or.nq?.avg_20yr||'—'}</div>
+              <div><span style="color:var(--text3);display:inline-block;width:90px;">5YR AVG</span><span style="color:var(--accent);">${or.nq?.avg_5yr||'—'}</span></div>
+              <div><span style="color:var(--text3);display:inline-block;width:90px;">NQ/ES RATIO</span>${or.nq_es_ratio||'—'}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // Frameworks
+    if (Object.keys(f).length) {
+      html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--text2);margin-bottom:16px;">ANALYTICAL FRAMEWORKS</div>`;
+      Object.entries(f).forEach(([, fw]) => {
+        if (!fw.name) return;
+        html += `<div style="margin-bottom:20px;border-left:3px solid var(--border2);padding-left:16px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--accent);margin-bottom:2px;">${fw.name}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:8px;letter-spacing:1px;">${fw.source||''}</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.7;">${fw.summary||''}</div>
+          ${fw.key_principles?.length ? `<ul style="margin-top:8px;padding-left:16px;font-size:11px;color:var(--text3);line-height:1.9;">
+            ${fw.key_principles.map(p => `<li>${p}</li>`).join('')}
+          </ul>` : ''}
+        </div>`;
+      });
+    }
+
+    document.getElementById('kbContent').innerHTML = html ||
+      '<div style="color:var(--text3);font-family:DM Mono,monospace;font-size:11px;">knowledge.json loaded but no data found — check file structure.</div>';
+
+  } catch(e) {
+    document.getElementById('kbContent').innerHTML =
+      `<div style="color:var(--red);font-family:'DM Mono',monospace;font-size:11px;line-height:1.8;">
+        Could not load knowledge.json<br>Make sure it is in the same folder as index.html<br><br>
+        Error: ${e.message}
+      </div>`;
+    document.getElementById('kbVersion').textContent = 'NOT LOADED';
+  }
+}
+
+// ============================================================
+// CLAUDE BRIEFING
+// ============================================================
+async function fetchClaudeBriefing(apiKey) {
+  const es = state.es, nq = state.nq;
+  const tide = state.tide;
+
+  const levelsSummary = state.levels.slice(0, 8).map(l =>
+    `${l.tier}-tier ${l.instrument.toUpperCase()} ${l.price.toFixed(2)} (${l.label}, ${l.distStr} from current)`
+  ).join('\n');
+
+  const calSummary = state.calendar.length
+    ? state.calendar.slice(0,5).map(e => `${e.time||''} ${e.title||e.event||''}`).join(', ')
+    : 'No major events';
+
+  const dpSummary = state.darkpool.slice(0,5).map(p =>
+    `$${(p.premium/1e6).toFixed(1)}M print at ${p.price.toFixed(2)}`
+  ).join(', ') || 'No large prints';
+
+  const setupsSummary = state.setups.map(s =>
+    `${s.direction} ${s.instrument.toUpperCase()} at ${s.entry}, stop ${s.stop}, target ${s.target}, ${s.r}:1 R`
+  ).join('\n') || 'No setups meet minimum R criteria';
+
+  // Load knowledge base
+  let knowledgeContext = '';
+  try {
+    const kbResp = await fetch('./knowledge.json');
+    if (kbResp.ok) {
+      const kb = await kbResp.json();
+      // Extract the most operationally relevant sections for the prompt
+      const f = kb.frameworks;
+      knowledgeContext = `
+INSTITUTIONAL TRADING KNOWLEDGE BASE (apply these frameworks to today's analysis):
+
+AUCTION MARKET THEORY (Steidlmayer):
+- Price + Time = Value. Levels where market spends time = accepted fair value. Levels price moves through quickly = rejected.
+- Prior day H/L/C are the primary auction reference points. They define the prior session's result.
+- If price opens INSIDE prior day value area → expect responsive trade (fade extremes back toward POC). If price opens OUTSIDE → expect initiative activity (follow the direction with confirmation).
+- Responsive trade = fading unfair price back toward value. Initiative trade = following a breakout from balance.
+- Single prints (prices that only traded once) represent unfinished auction — price almost always returns to fill them.
+- Excess at extremes (sharp rejection) = institutional engagement. The sharper the rejection, the more conviction that the level holds.
+
+DEALER GAMMA MECHANICS (SqueezeMetrics GEX White Paper 2016/2017; SpotGamma):
+- GEX = total dollar value dealers must buy/sell per 1% index move. Formula: Gamma × Open Interest × 100.
+- POSITIVE GEX regime: dealers are net long gamma → they BUY dips and SELL rallies → STABILIZING → expect range-bound, mean-reverting action → fade extremes works → breakouts likely fail.
+- NEGATIVE GEX regime: dealers are net short gamma → they SELL dips and BUY rallies → AMPLIFYING → expect trending, volatile action → follow momentum → do not fade.
+- PUT WALL = strike with largest put OI. Dealers SHORT these puts, creating mechanical BUYING obligation as price approaches. This is structurally enforced support. The larger the OI, the stronger the defense.
+- CALL WALL = strike with largest call OI. Dealers SHORT these calls, creating mechanical SELLING obligation as price approaches. Structural resistance.
+- GAMMA FLIP = price where net GEX crosses zero. Above = stabilizing, below = amplifying. Knowing which side you're on is critical.
+- STRIKE PINNING (Avellaneda & Lipkin 2003): When OI at a strike is unusually large, delta-hedging creates a drift toward that strike near expiration. Price gravitates to high OI strikes — especially on expiration days.
+- VANNA EFFECT: When VIX falls, dealers who are short puts see put delta shrink → must BUY back underlying → mechanical buying even without a fundamental catalyst.
+
+DARK POOL MECHANICS (SqueezeMetrics — Short Is Long, 2018):
+- Dark pool SHORT volume = institutional BUYING. Market makers short-sell to fill buy orders (they don't own the shares). This is counterintuitive but mechanically proven.
+- Large dark pool prints at a price = institution's COST BASIS. They defend cost basis — will not let price close well below their fill price without fighting back.
+- Clustered prints (multiple large prints in a narrow range) > single prints. Clustering = coordinated accumulation.
+- Dark pool print + OI wall within 10 ticks = A-tier setup. Two independent sources of institutional activity at the same price.
+- Brief pierce BELOW a dark pool cluster or put wall followed by immediate reversal = stop hunt to collect retail liquidity, then institutional buying. This is NOT a failure — it IS the signal. Steidlmayer called this "excess."
+
+MARKET TIDE:
+- Net call premium minus put premium. Positive = institutions buying calls (bullish). Negative = buying puts (bearish/hedging).
+- Magnitude: >$200M meaningful, >$500M significant, >$1B regime signal.
+- Tide turning at a key level = institutions responding to that level. Highest conviction signal.
+- Use as confirmation filter, not standalone trigger.
+
+ORDER FLOW CONFLUENCE (for AlgoBox integration):
+- Alpha Omega fires at PRIOR AUCTION ZONE highs/lows with order imbalance. Green Alpha at a put wall = buying imbalance at institutional support = enter.
+- Delta Flag = large institutional order detected. Delta Flag at a structural level = institutional order flow confirming the level.
+- Enigma L3/L4 = highest confluence Enigma signal. Wait for L3 or L4 at a structural level — not L1 in open air.
+- Stop placement: below the institutional defense zone (put wall or dark pool cluster), not at an arbitrary tick offset.
+- Target: next structural level (next OI wall, prior day close, prior day high/low).
+`;
+    }
+  } catch(e) {
+    console.warn('Knowledge base not loaded:', e.message);
+  }
+
+  const prompt = `You are a professional futures trading analyst. You have been trained on auction market theory (Steidlmayer), dealer gamma mechanics (SqueezeMetrics GEX research), dark pool mechanics (Short Is Long paper), and institutional order flow. Apply these frameworks directly to today's data.
+
+Be direct and specific. No hedging language. Name exact prices. One trade plan, two at most. Define any technical term on first use.
+${knowledgeContext}
+
+TODAY'S SESSION DATA:
+ES: ${es?.price?.toFixed(2)} current | prev close ${es?.prevClose?.toFixed(2)} | prev H ${es?.prevHigh?.toFixed(2)} | prev L ${es?.prevLow?.toFixed(2)} | weekly open ${es?.weeklyOpen?.toFixed(2)}
+NQ: ${nq?.price?.toFixed(2)} current | prev close ${nq?.prevClose?.toFixed(2)} | prev H ${nq?.prevHigh?.toFixed(2)} | prev L ${nq?.prevLow?.toFixed(2)} | weekly open ${nq?.weeklyOpen?.toFixed(2)}
+Market Tide: ${tide?.direction?.toUpperCase()} | net $${(tide?.net/1e6)?.toFixed(1)}M (calls minus puts — positive = institutions buying calls)
+Economic Calendar: ${calSummary}
+Dark Pool Prints (SPY×10 proxy for ES): ${dpSummary}
+OI Walls (top by open interest): ${state.oiWalls.slice(0,5).map(w => `${w.strike.toFixed(0)} (${(w.totalOI/1000).toFixed(0)}K OI, put:${(w.putOI/1000).toFixed(0)}K call:${(w.callOI/1000).toFixed(0)}K)`).join(', ') || 'unavailable'}
+Identified Levels (system-ranked):
+${levelsSummary}
+
+WRITE THE PRE-SESSION BRIEFING:
+
+MARKET CONTEXT
+State the GEX regime (stabilizing or amplifying) and what that means for today's behavior. Where is price relative to prior auction reference points? Is today's open responsive (inside value) or initiative (outside value)? What does Market Tide tell us? Any calendar risk?
+
+KEY LEVELS TO WATCH
+For each A-tier level: exact price, what it represents (prior high/low/close, OI wall, dark pool cluster), why it matters today, what to expect at that level (defense or breakout). Cross-reference — note when dark pool prints or OI walls cluster near structural levels. 2-3 sentences per level.
+
+THE TRADE PLAN
+Name 1-2 highest-conviction setups only. For each: direction (LONG or SHORT), exact entry zone, why this level has confluence, what AlgoBox signal triggers entry (Enigma L3/L4, Delta Flag, Alpha Omega at prior auction zone), stop placement (below institutional zone, not arbitrary), target (next structural level). State the R:R explicitly. If Market Tide opposes the trade direction, flag the risk.
+
+WHAT TO IGNORE
+State the price zones between structural levels where there is no institutional data. These are chop zones. Explicitly tell the trader not to enter there — wait for price to come to a level.
+
+Under 450 words total. Specific prices throughout. One trade plan.`;
+
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    messages: [{ role: 'user', content: prompt }]
+  };
+
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!r.ok) {
+    const err = await r.text();
+    throw new Error('Claude API: ' + r.status + ' — ' + err.substring(0,100));
+  }
+
+  const d = await r.json();
+  const text = d.content[0].text;
+  state.briefing = text;
+  renderBriefing(text);
+}
+
+// ============================================================
+// CHECK TIDE — on demand at level
+// ============================================================
+async function checkTide() {
+  const uwToken = getCfg('cfg-uw-token');
+  const apiKey = getCfg('cfg-anthropic-key');
+  if (!uwToken || !apiKey) {
+    showError('Missing UW or Anthropic key — check Settings');
+    return;
+  }
+
+  const btn = document.getElementById('checkTideBtn');
+  btn.disabled = true;
+  btn.textContent = '◌ READING...';
+
+  try {
+    // 1. Fetch fresh tide with 5m intervals to see recent momentum
+    await fetchMarketTide(uwToken);
+    const tide = state.tide;
+
+    // 2. Find nearest level to current price
+    const esPrice = state.es?.price;
+    const nqPrice = state.nq?.price;
+    let nearestLevel = null;
+    let nearestDist = Infinity;
+
+    state.levels.forEach(l => {
+      const curPrice = l.instrument === 'es' ? esPrice : nqPrice;
+      if (!curPrice) return;
+      const dist = Math.abs(l.price - curPrice);
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearestLevel = l;
+      }
+    });
+
+    // 3. Build entry for log — insert at top immediately (loading state)
+    const now = new Date().toLocaleTimeString('en-US', {
+      timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit'
+    });
+    const netM = (tide.net / 1e6).toFixed(1);
+    const prevNet = state.prevTideNet || tide.net;
+    const delta = tide.net - prevNet;
+    const deltaM = (delta / 1e6).toFixed(1);
+    const deltaDir = Math.abs(delta) < 5e6 ? 'flat' : delta >= 0 ? 'up' : 'down';
+    const deltaStr = deltaDir === 'flat' ? '→ flat' : (delta >= 0 ? '▲ +' : '▼ ') + deltaM + 'M';
+    const entryId = 'tide-entry-' + Date.now();
+
+    const levelStr = nearestLevel
+      ? `NEAREST LEVEL: ${nearestLevel.instrument.toUpperCase()} ${nearestLevel.price.toFixed(2)} — ${nearestLevel.label} (${nearestLevel.distStr})`
+      : 'NO LEVELS LOADED — run briefing first';
+
+    const logEl = document.getElementById('tideLog');
+
+    // Remove empty state if present
+    const empty = logEl.querySelector('.tide-log-empty');
+    if (empty) empty.remove();
+
+    // Insert new entry at top
+    const entryHtml = `
+      <div class="tide-entry" id="${entryId}">
+        <div class="tide-entry-top">
+          <div class="tide-entry-time">${now} ET</div>
+          <div class="tide-entry-dir ${tide.direction}">${tide.direction.toUpperCase()}</div>
+          <div class="tide-entry-net">${tide.net >= 0 ? '+' : ''}${netM}M</div>
+          <div class="tide-entry-delta ${deltaDir}">${deltaStr}</div>
+        </div>
+        <div class="tide-entry-level">${levelStr}</div>
+        <div class="tide-entry-analysis loading" id="${entryId}-analysis">Analyzing flow in context of nearest level...</div>
+      </div>`;
+
+    logEl.insertAdjacentHTML('afterbegin', entryHtml);
+
+    // Keep max 8 entries
+    const entries = logEl.querySelectorAll('.tide-entry');
+    if (entries.length > 8) entries[entries.length - 1].remove();
+
+    // 4. Claude interpretation
+    const oiNear = nearestLevel ? state.oiWalls.find(w => Math.abs(w.strike - nearestLevel.price) < 10) : null;
+    const dpNear = nearestLevel ? state.darkpool.filter(p => Math.abs(p.price - nearestLevel.price) < 10) : [];
+    const dpTotal = dpNear.reduce((s, p) => s + p.premium, 0);
+
+    const prompt = `You are giving a futures trader a real-time Market Tide reading at a specific moment. Be direct and specific. 2-3 sentences max. No filler. Do not reference any specific trading indicators or systems.
+
+CURRENT TIDE: ${tide.direction.toUpperCase()} | Net $${netM}M (calls minus puts — positive = institutions net buying calls)
+MOMENTUM: ${deltaStr} from prior reading
+NEAREST LEVEL: ${nearestLevel ? `${nearestLevel.instrument.toUpperCase()} ${nearestLevel.price.toFixed(2)} — ${nearestLevel.label} (${nearestLevel.distStr} from current price)` : 'No levels loaded'}
+OI WALL AT LEVEL: ${oiNear ? `${(oiNear.putOI > oiNear.callOI ? 'PUT WALL' : 'CALL WALL')} — ${(oiNear.totalOI/1000).toFixed(0)}K contracts` : 'None'}
+DARK POOL AT LEVEL: ${dpTotal > 0 ? `$${(dpTotal/1e6).toFixed(1)}M institutional prints` : 'None'}
+
+Answer these three things concisely:
+1. What is the institutional flow saying RIGHT NOW — is it supporting or opposing a trade at the nearest level?
+2. Is the tide accelerating or decelerating — does momentum support entering or waiting?
+3. What should the trader watch for in the next few minutes given this reading?`;
+
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (r.ok) {
+      const d = await r.json();
+      const analysis = d.content[0].text.trim();
+      const analysisEl = document.getElementById(entryId + '-analysis');
+      if (analysisEl) {
+        analysisEl.textContent = analysis;
+        analysisEl.classList.remove('loading');
+      }
+    }
+
+  } catch(e) {
+    console.error('Check tide error:', e);
+    showError('Tide check failed: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '◎ CHECK TIDE';
+}
+
+
+  const el = document.getElementById('briefingContent');
+  el.classList.remove('empty');
+
+  // Style section headers
+  const styled = text
+    .replace(/^(MARKET CONTEXT|KEY LEVELS TO WATCH|THE TRADE PLAN|WHAT TO IGNORE)/gm,
+      '<span class="section-head">$1</span>');
+
+  el.innerHTML = styled;
+
+  const now = new Date().toLocaleTimeString('en-US', {
+    timeZone: 'America/New_York',
+    hour: '2-digit', minute: '2-digit'
+  });
+  document.getElementById('briefingTimestamp').textContent = 'GENERATED ' + now + ' ET';
+}
+
+// ============================================================
+// ZONE CHART — data-derived zone widths from 20yr bar analysis
+// ============================================================
+
+// Zone widths derived from actual ES/NQ prior day level behavior
+// above = median follow-through/2 (stop hunt range above level)
+// below = median bounce/3 (acceptance zone below level)
+const ZONE_WIDTHS = {
+  es: {
+    pdh:   { above: 9,  below: 5  },  // ES prior high: FT median 19tk/2, bounce 16tk/3
+    pdl:   { above: 11, below: 6  },  // ES prior low:  FT median 23tk/2, bounce 18tk/3
+    pdc:   { above: 10, below: 6  },  // ES prior close:FT median 21tk/2, bounce 17tk/3
+    weekly:{ above: 8,  below: 5  },
+    oi:    { above: 8,  below: 8  },
+    dp:    { above: 6,  below: 6  },
+    other: { above: 5,  below: 5  }
+  },
+  nq: {
+    pdh:   { above: 24, below: 12 },  // NQ prior high: FT median 48tk/2, bounce 35tk/3
+    pdl:   { above: 30, below: 14 },  // NQ prior low:  FT median 60tk/2, bounce 41tk/3
+    pdc:   { above: 26, below: 13 },  // NQ prior close:FT median 51tk/2, bounce 39tk/3
+    weekly:{ above: 20, below: 10 },
+    oi:    { above: 20, below: 20 },
+    dp:    { above: 16, below: 16 },
+    other: { above: 12, below: 12 }
+  }
+};
+
+function switchZoneTab(instrument) {
+  document.querySelectorAll('.zone-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.zone-chart-container').forEach(c => c.classList.remove('active'));
+  document.getElementById('ztab-' + instrument).classList.add('active');
+  document.getElementById('zone-' + instrument).classList.add('active');
+}
+
+async function renderLadder() {
+  const esLevels = state.levels.filter(l => l.instrument === 'es');
+  const nqLevels = state.levels.filter(l => l.instrument === 'nq');
+  if (!esLevels.length && !nqLevels.length) return;
+
+  document.getElementById('ladderPanel').style.display = 'block';
+  document.getElementById('ladderStatus').textContent = 'GENERATING ZONE ANALYSIS...';
+
+  const apiKey = getCfg('cfg-anthropic-key');
+
+  // Render zone charts immediately (skeleton)
+  renderZoneChart('es', esLevels, state.es?.price, true);
+  renderZoneChart('nq', nqLevels, state.nq?.price, true);
+
+  // Fetch Claude analysis per level in parallel
+  const allLevels = [...esLevels, ...nqLevels];
+  const analyses = await Promise.all(
+    allLevels.map(l => fetchLevelAnalysis(l, apiKey))
+  );
+  allLevels.forEach((l, i) => { l.analysis = analyses[i]; });
+
+  // Re-render with full analysis
+  renderZoneChart('es', esLevels, state.es?.price, false);
+  renderZoneChart('nq', nqLevels, state.nq?.price, false);
+
+  document.getElementById('ladderStatus').textContent = allLevels.length + ' ZONES MAPPED';
+}
+
+function renderZoneChart(instrument, levels, currentPrice, skeleton) {
+  const axisEl  = document.getElementById(instrument + '-axis');
+  const chartEl = document.getElementById(instrument + '-chart');
+
+  if (!levels.length) {
+    chartEl.innerHTML = '<div style="padding:40px 20px;color:var(--text3);font-family:DM Mono,monospace;font-size:11px;letter-spacing:2px;">NO LEVELS IDENTIFIED</div>';
+    return;
+  }
+
+  const widths = ZONE_WIDTHS[instrument];
+  const tickSize = 0.25;
+
+  // Sort descending
+  const sorted = [...levels].sort((a, b) => b.price - a.price);
+
+  // Calculate price range including zone extents
+  let allPrices = [];
+  sorted.forEach(l => {
+    const w = widths[l.type] || widths.other;
+    allPrices.push(l.price + w.above * tickSize);
+    allPrices.push(l.price - w.below * tickSize);
+  });
+  if (currentPrice) allPrices.push(currentPrice);
+
+  const maxP = Math.max(...allPrices);
+  const minP = Math.min(...allPrices);
+  const range = maxP - minP || 10;
+  const padding = range * 0.08;
+  const totalRange = range + padding * 2;
+  const chartHeight = Math.max(500, sorted.length * 120);
+
+  chartEl.style.height = chartHeight + 'px';
+  axisEl.style.height  = chartHeight + 'px';
+
+  function priceToY(p) {
+    return ((maxP + padding - p) / totalRange) * chartHeight;
+  }
+
+  // Build axis ticks at each level price
+  let axisHtml = '';
+  sorted.forEach(l => {
+    const y = priceToY(l.price);
+    axisHtml += `<div class="axis-tick" style="top:${y}px;">
+      <div class="axis-tick-label highlight">${l.price.toFixed(2)}</div>
+      <div class="axis-tick-line"></div>
+    </div>`;
+  });
+  axisEl.innerHTML = axisHtml;
+
+  // Build zones
+  let chartHtml = '';
+
+  // Current price line
+  if (currentPrice) {
+    const cy = priceToY(currentPrice);
+    chartHtml += `<div style="position:absolute;left:8px;right:0;top:${cy}px;height:1px;background:rgba(255,255,255,0.2);z-index:10;">
+      <span style="position:absolute;right:4px;top:-9px;font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:1px;">CURRENT ${currentPrice.toFixed(2)}</span>
+    </div>`;
+  }
+
+  sorted.forEach((level, i) => {
+    const w = widths[level.type] || widths.other;
+    const topPrice  = level.price + w.above * tickSize;
+    const botPrice  = level.price - w.below * tickSize;
+    const topY = priceToY(topPrice);
+    const botY = priceToY(botPrice);
+    const zoneHeight = Math.max(botY - topY, 60);
+
+    // Tick gap between zones
+    if (i > 0) {
+      const prevLevel = sorted[i-1];
+      const prevBotPrice = prevLevel.price - (widths[prevLevel.type]||widths.other).below * tickSize;
+      const gapPts = prevBotPrice - topPrice;
+      const gapTicks = Math.round(gapPts / tickSize);
+      if (gapTicks > 0) {
+        const midY = priceToY(prevBotPrice + gapPts / 2);
+        chartHtml += `<div class="zone-gap-label" style="top:${midY}px;right:0;">
+          <div class="zone-gap-line"></div>
+          <span style="white-space:nowrap;">↕ ${gapTicks}tk open</span>
+          <div class="zone-gap-line"></div>
+        </div>`;
+      }
+    }
+
+    // Confluence
+    const oiNear = state.oiWalls.find(w2 => Math.abs(w2.strike - level.price) < (instrument === 'nq' ? 40 : 10));
+    const dpNear = state.darkpool.filter(p => Math.abs(p.price - level.price) < (instrument === 'nq' ? 40 : 10));
+    const dpTotal = dpNear.reduce((s,p) => s + p.premium, 0);
+    const isBelowCurrent = currentPrice && level.price < currentPrice;
+    const tideMatchesDir = isBelowCurrent
+      ? state.tide?.direction === 'bullish'
+      : state.tide?.direction === 'bearish';
+
+    let score = 0;
+    if (['close','high','low'].includes(level.type)) score++;
+    if (level.type === 'weekly') score++;
+    if (oiNear) score++;
+    if (dpTotal > 1e6) score++;
+    if (tideMatchesDir) score++;
+
+    // Badges
+    let badges = '';
+    if (['close','high','low','weekly'].includes(level.type))
+      badges += `<span class="zone-badge struct">${level.type === 'close' ? 'PD CLOSE' : level.type === 'high' ? 'PD HIGH' : level.type === 'low' ? 'PD LOW' : 'WK OPEN'}</span>`;
+    if (oiNear) {
+      const wallType = oiNear.putOI > oiNear.callOI ? 'PUT WALL' : 'CALL WALL';
+      badges += `<span class="zone-badge oi">${wallType} ${(oiNear.totalOI/1000).toFixed(0)}K</span>`;
+    }
+    if (dpTotal > 1e6)
+      badges += `<span class="zone-badge dp">DP $${(dpTotal/1e6).toFixed(1)}M</span>`;
+    if (tideMatchesDir)
+      badges += `<span class="zone-badge tide">TIDE ✓</span>`;
+    else if (state.tide?.direction !== 'neutral')
+      badges += `<span class="zone-badge tide-b">TIDE ✗</span>`;
+    if (oiNear && oiNear.totalOI > 80000)
+      badges += `<span class="zone-badge pin">PIN</span>`;
+
+    // Confidence dots
+    let dots = '';
+    for (let d = 0; d < 5; d++) {
+      const on = d < score;
+      const high = score >= 4 && on;
+      dots += `<div class="zone-conf-dot ${on ? 'on' : ''} ${high ? 'high' : ''}"></div>`;
+    }
+
+    // Data row
+    const oiStr = oiNear ? `OI ${(oiNear.putOI/1000).toFixed(0)}K put / ${(oiNear.callOI/1000).toFixed(0)}K call` : '';
+    const dpStr = dpTotal > 0 ? `DP $${(dpTotal/1e6).toFixed(1)}M` : '';
+    const tideStr = state.tide ? `TIDE ${state.tide.direction.toUpperCase()} $${(state.tide.net/1e6).toFixed(0)}M` : '';
+    const dataItems = [oiStr, dpStr, tideStr].filter(Boolean);
+
+    // Expect text
+    let expectHtml = '';
+    if (skeleton) {
+      expectHtml = `<div class="zone-expect loading">analyzing confluence...</div>`;
+    } else if (level.analysis?.expect) {
+      const confColor = level.analysis.confidence === 'HIGH' ? 'var(--green)'
+        : level.analysis.confidence === 'MEDIUM' ? 'var(--accent)' : 'var(--text3)';
+      expectHtml = `<div class="zone-expect" style="border-left:2px solid ${confColor};padding-left:6px;">${level.analysis.expect}</div>`;
+    } else {
+      expectHtml = `<div class="zone-expect">Prior ${level.type} level — ${isBelowCurrent ? 'buyers defended here last session' : 'sellers defended here last session'}.</div>`;
+    }
+
+    const typeClass = level.type || 'other';
+
+    chartHtml += `
+    <div class="zone-box ${typeClass} tier-${level.tier}"
+         style="top:${topY}px; height:${zoneHeight}px;">
+      <div class="zone-content">
+        <div class="zone-top-row">
+          <div class="zone-price-label">${level.price.toFixed(2)}</div>
+          <div class="zone-name">${level.label.replace('ES ','').replace('NQ ','')}</div>
+          <div class="zone-conf-dots">${dots}</div>
+          <div class="zone-tier-badge ${level.tier}">${level.tier}</div>
+        </div>
+        ${badges ? `<div class="zone-badges-row">${badges}</div>` : ''}
+        ${expectHtml}
+        ${dataItems.length ? `<div class="zone-data-row">${dataItems.map(d => `<div class="zone-data-item"><span>${d}</span></div>`).join('')}</div>` : ''}
+      </div>
+    </div>`;
+  });
+
+  chartEl.innerHTML = chartHtml;
+}
+
+async function fetchLevelAnalysis(level, apiKey) {
+  if (!apiKey) return null;
+  try {
+    const curPrice = level.instrument === 'es' ? state.es?.price : state.nq?.price;
+    const tide = state.tide;
+    const oiNear = state.oiWalls.find(w => Math.abs(w.strike - level.price) < 10);
+    const dpNear = state.darkpool.filter(p => Math.abs(p.price - level.price) < 10);
+    const dpTotal = dpNear.reduce((s, p) => s + p.premium, 0);
+    const isAbove = level.price > curPrice;
+
+    const prompt = `Analyze this futures price level in 2 sentences max. No trading system references. No entry/exit instructions. Just what price is likely to do here and why based on the institutional data.
+
+LEVEL: ${level.instrument.toUpperCase()} ${level.price.toFixed(2)} — ${level.label}
+Current price: ${curPrice?.toFixed(2)} (level is ${isAbove ? 'above' : 'below'} current price)
+OI Wall: ${oiNear ? `${(oiNear.putOI > oiNear.callOI ? 'PUT WALL' : 'CALL WALL')} ${(oiNear.totalOI/1000).toFixed(0)}K contracts` : 'None'}
+Dark Pool: ${dpTotal > 0 ? `$${(dpTotal/1e6).toFixed(1)}M institutional prints` : 'None'}
+Market Tide: ${tide?.direction?.toUpperCase()} $${(tide?.net/1e6)?.toFixed(1)}M net
+
+Apply auction theory and dealer gamma mechanics. Be specific about what the data implies.
+
+JSON only: {"expect":"2 sentences","confidence":"HIGH or MEDIUM or LOW"}`;
+
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!r.ok) return null;
+    const d = await r.json();
+    const text = d.content[0].text.trim().replace(/```json|```/g,'').trim();
+    return JSON.parse(text);
+  } catch(e) {
+    console.warn('Level analysis error:', e.message);
+    return null;
+  }
+}
+
+</script>
+</body>
+</html>
